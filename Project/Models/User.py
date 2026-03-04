@@ -1,9 +1,3 @@
-"""
-Author: Sindri Freysson <sindrif25@ru.is>
-Date: 2026-03-04
-
-Model Super class User
-"""
 class User:
     """
     A generalized class to represent a user
