@@ -28,6 +28,7 @@ class Event:
         self.event_name = event_name
         self.description = description
         self.event_tags = event_tags
+        self.time_tags = self._derive_time_tags(date_time)
         self.branch_type = branch_type
         self.date_time = date_time
         self.location = location
@@ -35,3 +36,18 @@ class Event:
         self.status = status
         self.creator = creator
         self.attendees = []
+
+    def _derive_time_tags(self, date_time):
+        hour = date_time.hour
+        if 5 <= hour <= 11:
+            day_part = "morning"
+        elif 12 <= hour <= 16:
+            day_part = "afternoon"
+        elif 17 <= hour <= 21:
+            day_part = "evening"
+        else:
+            day_part = "night"
+
+        weekday_type = "weekend" if date_time.weekday() >= 5 else "weekday"
+        month_tag = date_time.strftime("%B").lower()
+        return [day_part, weekday_type, month_tag]
