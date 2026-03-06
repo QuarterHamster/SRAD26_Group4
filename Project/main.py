@@ -1,4 +1,4 @@
-from Project.UILayer.MainUI import MainUI
+from UILayer.MainUI import MainUI
 
 main = MainUI()
 
