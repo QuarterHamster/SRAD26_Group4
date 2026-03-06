@@ -4,7 +4,7 @@ The project aims to create a non-profit event hub for a campus where students, t
 
 Users are split into three types: 
 * Campus user: University students or staff, which can create events and join them.
-* Administrators: Admins can approve or reject events, admins can 
+* Administrators: Admins can approve or reject events, admins can give temporary access to sponsors.
 * Sponsors: Sponsors can gain temporary access to the system to post events for an organization 
 ## How to run the project
 Clone the project from GitHub
