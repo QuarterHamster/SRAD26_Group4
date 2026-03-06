@@ -189,39 +189,10 @@ class MainUI:
             print(border())
 
             if response == "1":
-                for event in events:
-                    print(event)
-                    print(border())
-
-                input("Input Anything to Continue")
+                pass
 
             if response == "2":
-                next_temp_uuid: int = 1 + events[-1].uuid
-
-                event_name: str = input("Event Name: ")
-                description: str = input("Event Description: ")
-                event_tag: Event_tags = Event_tags.ACADEMIC
-                branch_type: Branch_type = Branch_type.REYKJAVÍK
-                date_time: datetime = datetime(2026, 3, 10, 18, 0)
-                location: str = input("Event Location: ")
-                is_private: bool = False
-                status: Event_status = Event_status.PENDING
-                creator: str = campus_users[-1].name
-
-                events.append(
-                    Event(
-                        next_temp_uuid,
-                        event_name,
-                        description,
-                        event_tag,
-                        branch_type,
-                        date_time,
-                        location,
-                        is_private,
-                        status,
-                        creator,
-                    )
-                )
+                pass
 
             if response == "3":
                 pass
