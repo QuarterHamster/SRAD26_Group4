@@ -52,6 +52,16 @@ class Event:
         self.creator = creator
         self.attendees = []
         self.invitees = []
+        self.invited_users = []
+
+    def invite_user(self, user_id):
+        if user_id not in self.invited_users:
+            self.invited_users.append(user_id)
+
+    def can_be_viewed_by(self, user_id):
+        if not self.is_private:
+            return True
+        return str(user_id) == str(self.creator) or user_id in self.invited_users
 
     def __str__(self):
         return f"Creator: {self.creator}\nName: {self.event_name}\nDescription: {self.description}\nTags: {', '.join(i for i in (self.event_tags))}\nBranch: {self.branch_type}\nThe event is at: {self.date_time}\nLocation: {self.location}"
