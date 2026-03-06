@@ -55,13 +55,22 @@ class Event:
         self.invited_users = []
 
     def invite_user(self, user_id):
+        user_id = str(user_id)
         if user_id not in self.invited_users:
             self.invited_users.append(user_id)
 
     def can_be_viewed_by(self, user_id):
         if not self.is_private:
             return True
-        return str(user_id) == str(self.creator) or user_id in self.invited_users
+
+        if str(user_id) == str(self.creator):
+            return True
+
+        for invited_user in self.invited_users:
+            if str(invited_user) == str(user_id):
+                return True
+
+        return False
 
     def __str__(self):
         return f"Creator: {self.creator}\nName: {self.event_name}\nDescription: {self.description}\nTags: {', '.join(i for i in (self.event_tags))}\nBranch: {self.branch_type}\nThe event is at: {self.date_time}\nLocation: {self.location}"
