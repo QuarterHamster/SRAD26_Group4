@@ -1,10 +1,18 @@
+
+
 from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
 from datetime import datetime
+from UILayer.Place_holder_data import events, campus_users
+from UILayer.AdminUI import AdminUI
+from LogicLayer import LogicLayerAPI
 
 
 class MainUI:
+    def __init__(self):
+        self._adminUI = AdminUI()
+
     def run(self):
         SCALE: int = 80
 
@@ -33,148 +41,77 @@ class MainUI:
 
                 print("Not a valid option try again")
 
-        campus_users: list[Campus_user] = [
-            Campus_user(
-                1, "Anna Jónsdóttir", "anna1@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                2,
-                "Bjarni Sigurðsson",
-                "bjarni2@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                3,
-                "Elín Guðmundsdóttir",
-                "elin3@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                4, "Kári Stefánsson", "kari4@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                5, "Sara Magnúsdóttir", "sara5@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                6, "Jón Þórsson", "jon6@campus.is", "active", School_type.STAFF
-            ),
-            Campus_user(
-                7,
-                "Helga Kristinsdóttir",
-                "helga7@campus.is",
-                "active",
-                School_type.STAFF,
-            ),
-            Campus_user(
-                8, "Arnar Pétursson", "arnar8@campus.is", "active", School_type.STAFF
-            ),
-            Campus_user(
-                9,
-                "Kristín Ólafsdóttir",
-                "kristin9@campus.is",
-                "active",
-                School_type.STAFF,
-            ),
-            Campus_user(
-                10, "Davíð Einarsson", "david10@campus.is", "active", School_type.STAFF
-            ),
-            Campus_user(
-                11,
-                "Ragnar Björnsson",
-                "ragnar11@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                12,
-                "Lilja Sigfúsdóttir",
-                "lilja12@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                13,
-                "Stefán Gíslason",
-                "stefan13@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                14, "María Björk", "maria14@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                15,
-                "Óskar Þórðarson",
-                "oskar15@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-        ]
 
-        events: list[Event] = [
-            Event(
-                1,
-                "Campus Coding Night",
-                "Students meet to work on coding projects together.",
-                ["coding", "tech", "collaboration"],
-                "Engineering",
-                datetime(2026, 3, 10, 18, 0),
-                "Room E301",
-                False,
-                "active",
-                "1",
-            ),
-            Event(
-                2,
-                "Photography Walk",
-                "Campus photo walk for students interested in photography.",
-                ["photography", "creative", "outdoors"],
-                "Arts",
-                datetime(2026, 3, 12, 16, 30),
-                "Campus Main Entrance",
-                False,
-                "active",
-                "2",
-            ),
-            Event(
-                3,
-                "Startup Meetup",
-                "Discussion about student startups and entrepreneurship.",
-                ["business", "startup", "networking"],
-                "Business",
-                datetime(2026, 3, 15, 17, 0),
-                "Innovation Hub",
-                False,
-                "active",
-                "3",
-            ),
-            Event(
-                4,
-                "Staff Strategy Meeting",
-                "Internal planning meeting for upcoming campus events.",
-                ["staff", "planning"],
-                "Administration",
-                datetime(2026, 3, 11, 9, 0),
-                "Admin Building Room 2",
-                True,
-                "scheduled",
-                "4",
-            ),
-            Event(
-                5,
-                "Training Session",
-                "Open fitness training for students interested in movement.",
-                ["sport", "fitness"],
-                "Sports",
-                datetime(2026, 3, 14, 19, 0),
-                "Campus Gym Hall",
-                False,
-                "active",
-                "5",
-            ),
+
+        def list_events_short():
+            user_id = input("Enter your user id: ").strip()
+
+            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+
+            print(border(SCALE))
+            print(walls(SCALE, "Events"))
+            print(border(SCALE))
+
+            if len(visible_events) == 0:
+                print("No visible events.")
+                return
+
+            for e in visible_events:
+                privacy = "Private" if e.is_private else "Public"
+                print(f"{e.event_name} [{privacy}]")
+
+        def choose_event():
+            list_events_short()
+            while True:
+                picked = input("Enter event id: ").strip()
+                for e in events:
+                    if str(e.uuid) == picked:
+                        return e
+                print("Event not found, try again.")
+    
+
+        def show_attendees_for_event():
+            chosen = choose_event()
+
+            # Simple privacy rule: do not reveal attendees for private events
+            if chosen.is_private:
+                print(border(SCALE))
+                print(walls(SCALE, "This event is private. Attendees are hidden."))
+                print(border(SCALE))
+                input("\nPress Enter to continue...")
+                return
+
+            print(border(SCALE))
+            print(walls(SCALE, f"Attendees for: {chosen.event_name}"))
+            print(border(SCALE))
+
+            print(f"Total attendees: {len(chosen.attendees)}")
+
+            if len(chosen.attendees) == 0:
+                print("No attendees yet.")
+            else:
+                for a in chosen.attendees:
+                    print("- " + a)
+
+            input("\nPress Enter to continue...")
+
+
+        user_list = campus_users
+        event_list = events
+
+        # --- Hardcoded attendees for User Story #14 ---
+        event_list[0].attendees = ["Anna Jónsdóttir", "Bjarni Sigurðsson", "Jón Þórsson"]
+        event_list[1].attendees = ["Elín Guðmundsdóttir", "Kári Stefánsson"]
+        event_list[2].attendees = [
+            "Sara Magnúsdóttir",
+            "Helga Kristinsdóttir",
+            "Arnar Pétursson",
         ]
+        # events[3] is private -> keep empty
+        events[4].attendees = ["Ragnar Björnsson"]
+
+        events[3].invite_user(6)
+        events[3].invite_user(7)
 
         while True:
             print(border(SCALE))
@@ -182,20 +119,47 @@ class MainUI:
             print(walls(SCALE, "1. See Events"))
             print(walls(SCALE, "2. Create Event"))
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
+            print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "q"])
+            response: str = user_input(["1", "2", "3", "4", "q"])
             print(border())
 
             if response == "1":
-                pass
+                list_events_short()
 
             if response == "2":
-                pass
+                event_name: str = input("Event Name: ")
+                event_description: str = input("Event Description: ")
+                #event_tags: str = input("Event Tags: ")
+                # Branch type dropdown menu
+                date_time: str = input("Event Date: ")
+                event_location: str = input("Event Location: ")
+                visibility = True
+                while True:
+                    is_private: str = input("Should the event be private? Y/N: ")
+                    if is_private.lower() == "y":
+                        visibility = False
+                        break
+                    elif is_private.lower() == "n":
+                        visibility = True
+                        break
+                    else:
+                        print("Invalid Input")
+                        continue
+                # creator is id:1
+                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK.value, date_time, event_location,visibility, 1)
+                events.append(new_event)
+                print(new_event)
+
+
 
             if response == "3":
-                pass
+                self._adminUI.accept_reject_event()
+
+            if response == "4":
+                show_attendees_for_event()
 
             if response == "q":
                 break

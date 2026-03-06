@@ -53,6 +53,26 @@ class Event:
         self.status = status
         self.creator = creator
         self.attendees = []
+        self.invitees = []
+        self.invited_users = []
+
+    def invite_user(self, user_id):
+        user_id = str(user_id)
+        if user_id not in self.invited_users:
+            self.invited_users.append(user_id)
+
+    def can_be_viewed_by(self, user_id):
+        if not self.is_private:
+            return True
+
+        if str(user_id) == str(self.creator):
+            return True
+
+        for invited_user in self.invited_users:
+            if str(invited_user) == str(user_id):
+                return True
+
+        return False
 
     def _derive_time_tags(self, date_time):
         hour = date_time.hour
