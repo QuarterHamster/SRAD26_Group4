@@ -6,6 +6,9 @@ from uuid import uuid4
 
 
 class EventLogic:
+    def __init__(self):
+        self.events = []
+
     def create_event(self, event_name, description, event_tags, branch_type, date_time, location, is_private, status, creator) -> Event:
         """
         :param event_name:
@@ -30,8 +33,13 @@ class EventLogic:
         """
         uuid = str(uuid4())
         new_event = Event(uuid, event_name, description, event_tags, branch_type, date_time, location, is_private, "proposed", creator)
+        self.events.append(new_event)
         DataLayerAPI.store_event(new_event)
         return new_event
+
+    def filter_events_by_time_tag(self, time_tag):
+        normalized = str(time_tag).strip().lower()
+        return [event for event in self.events if normalized in event.time_tags]
 
 
 # EventLogic = EventLogic()
