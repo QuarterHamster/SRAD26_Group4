@@ -1,6 +1,6 @@
 from UILayer.Place_holder_data import campus_users, events
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
-from Models.Events import Event
+from Models.Event import Event
 from LogicLayer import LogicLayerAPI
 
 

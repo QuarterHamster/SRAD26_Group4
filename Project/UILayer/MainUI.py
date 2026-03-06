@@ -1,9 +1,12 @@
+
+
 from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
-from Models.Events import Event
+from Models.Event import Event
 from datetime import datetime
 from UILayer.Place_holder_data import events, campus_users
 from UILayer.AdminUI import AdminUI
+from LogicLayer import LogicLayerAPI
 
 
 class MainUI:
@@ -38,8 +41,65 @@ class MainUI:
 
                 print("Not a valid option try again")
 
+
+
+        def list_events_short():
+            print(border(SCALE))
+            print(walls(SCALE, "Events"))
+            print(border(SCALE))
+            for e in events:
+                privacy = "Private" if e.is_private else "Public"
+                print(f"{e.uuid}. {e.event_name} [{privacy}]")
+
+        def choose_event():
+            list_events_short()
+            while True:
+                picked = input("Enter event id: ").strip()
+                for e in events:
+                    if str(e.uuid) == picked:
+                        return e
+                print("Event not found, try again.")
+    
+
+        def show_attendees_for_event():
+            chosen = choose_event()
+
+            # Simple privacy rule: do not reveal attendees for private events
+            if chosen.is_private:
+                print(border(SCALE))
+                print(walls(SCALE, "This event is private. Attendees are hidden."))
+                print(border(SCALE))
+                input("\nPress Enter to continue...")
+                return
+
+            print(border(SCALE))
+            print(walls(SCALE, f"Attendees for: {chosen.event_name}"))
+            print(border(SCALE))
+
+            print(f"Total attendees: {len(chosen.attendees)}")
+
+            if len(chosen.attendees) == 0:
+                print("No attendees yet.")
+            else:
+                for a in chosen.attendees:
+                    print("- " + a)
+
+            input("\nPress Enter to continue...")
+
+
         user_list = campus_users
         event_list = events
+
+        # --- Hardcoded attendees for User Story #14 ---
+        event_list[0].attendees = ["Anna Jónsdóttir", "Bjarni Sigurðsson", "Jón Þórsson"]
+        event_list[1].attendees = ["Elín Guðmundsdóttir", "Kári Stefánsson"]
+        event_list[2].attendees = [
+            "Sara Magnúsdóttir",
+            "Helga Kristinsdóttir",
+            "Arnar Pétursson",
+        ]
+        # events[3] is private -> keep empty
+        events[4].attendees = ["Ragnar Björnsson"]
 
         while True:
             print(border(SCALE))
@@ -47,20 +107,36 @@ class MainUI:
             print(walls(SCALE, "1. See Events"))
             print(walls(SCALE, "2. Create Event"))
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
+            print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "q"])
+            response: str = user_input(["1", "2", "3", "4", "q"])
             print(border())
 
             if response == "1":
-                pass
+                list_events_short()
 
             if response == "2":
-                pass
+                event_name: str = input("Event Name: ")
+                event_description: str = input("Event Description: ")
+                #event_tags: str = input("Event Tags: ")
+                # Branch type dropdown menu
+                date_time: str = input("Event Date: ")
+                event_location: str = input("Event Location: ")
+                # is private is False
+                # creator is id:1
+                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK, date_time, event_location,False, 1)
+                events.append(new_event)
+                print(new_event)
+
+
 
             if response == "3":
                 self._adminUI.accept_reject_event()
+
+            if response == "4":
+                show_attendees_for_event()
 
             if response == "q":
                 break

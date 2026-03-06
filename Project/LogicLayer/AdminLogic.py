@@ -1,4 +1,4 @@
-from Models.Events import Event
+from Models.Event import Event
 from Models.Enums import Event_status
 
 
