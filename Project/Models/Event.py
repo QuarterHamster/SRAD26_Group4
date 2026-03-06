@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class Event:
     """
     Represents an event including its name, description, tags, date and location.
@@ -25,7 +26,20 @@ class Event:
     :param creator: Creator of the event
     :type creator: str
     """
-    def __init__(self, uuid, event_name, description, event_tags, branch_type, date_time, location, is_private, status, creator):
+
+    def __init__(
+        self,
+        uuid,
+        event_name,
+        description,
+        event_tags,
+        branch_type,
+        date_time,
+        location,
+        is_private,
+        status,
+        creator,
+    ):
         self.uuid = uuid
         self.event_name = event_name
         self.description = description
