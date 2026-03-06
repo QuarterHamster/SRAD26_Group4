@@ -31,6 +31,23 @@ class EventLogic:
         DataLayerAPI.store_event(new_event)
         return new_event
 
+    def invite_user(self, event, user_id):
+        event.invite_user(user_id)
+
+
+    def can_user_view_event(self, event, user_id):
+        return event.can_be_viewed_by(user_id)
+
+
+    def get_visible_events(self, events, user_id):
+
+        visible_events = []
+
+        for event in events:
+            if event.can_be_viewed_by(user_id):
+                visible_events.append(event)
+
+        return visible_events
 
 # EventLogic = EventLogic()
 # test_time = datetime.datetime
