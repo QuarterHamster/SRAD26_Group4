@@ -44,10 +44,19 @@ class MainUI:
 
 
         def list_events_short():
+            user_id = input("Enter your user id: ").strip()
+
+            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+
             print(border(SCALE))
             print(walls(SCALE, "Events"))
             print(border(SCALE))
-            for e in events:
+
+            if len(visible_events) == 0:
+                print("No visible events.")
+                return
+
+            for e in visible_events:
                 privacy = "Private" if e.is_private else "Public"
                 print(f"{e.event_name} [{privacy}]")
 
@@ -100,6 +109,9 @@ class MainUI:
         ]
         # events[3] is private -> keep empty
         events[4].attendees = ["Ragnar Björnsson"]
+
+        events[3].invite_user(6)
+        events[3].invite_user(7)
 
         while True:
             print(border(SCALE))
