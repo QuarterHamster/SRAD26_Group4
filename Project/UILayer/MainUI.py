@@ -59,6 +59,7 @@ class MainUI:
                 print(border(SCALE))
                 print(walls(SCALE, "This event is private. Attendees are hidden."))
                 print(border(SCALE))
+                input("\nPress Enter to continue...")
                 return
 
             print(border(SCALE))
@@ -72,6 +73,8 @@ class MainUI:
             else:
                 for a in chosen.attendees:
                     print("- " + a)
+
+            input("\nPress Enter to continue...")
 
         campus_users: list[Campus_user] = [
             Campus_user(
