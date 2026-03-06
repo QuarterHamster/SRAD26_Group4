@@ -44,6 +44,7 @@ class MainUI:
 
 
         def list_events_short():
+            # TODO: This will need to be changed later to Name where we fetch the id from the name
             user_id = input("Enter your user id: ").strip()
 
             visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
@@ -63,9 +64,9 @@ class MainUI:
         def choose_event():
             list_events_short()
             while True:
-                picked = input("Enter event id: ").strip()
+                picked = input("Enter event Name: ").strip()
                 for e in events:
-                    if str(e.uuid) == picked:
+                    if str(e.event_name) == picked:
                         return e
                 print("Event not found, try again.")
     
