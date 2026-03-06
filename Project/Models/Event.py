@@ -69,7 +69,16 @@ class Event:
         month_tag = date_time.strftime("%B").lower()
         return [day_part, weekday_type, month_tag]
     def __str__(self):
-        return (f"Creator: {self.creator}\nName: {self.event_name}\nDescription: {self.description}\nTags: {", ".join(i for i in (self.event_tags))}\nBranch: {self.branch_type}\nThe event is at: {self.date_time}\nLocation: {self.location}")
+        tags_text = ", ".join(str(i) for i in self.event_tags)
+        return (
+            f"Creator: {self.creator}\n"
+            f"Name: {self.event_name}\n"
+            f"Description: {self.description}\n"
+            f"Tags: {tags_text}\n"
+            f"Branch: {self.branch_type}\n"
+            f"The event is at: {self.date_time}\n"
+            f"Location: {self.location}"
+        )
     
 
 events = [
