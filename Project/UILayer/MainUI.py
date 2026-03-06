@@ -2,9 +2,14 @@ from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Events import Event
 from datetime import datetime
+from UILayer.Place_holder_data import events, campus_users
+from UILayer.AdminUI import AdminUI
 
 
 class MainUI:
+    def __init__(self):
+        self._adminUI = AdminUI()
+
     def run(self):
         SCALE: int = 80
 
@@ -33,148 +38,8 @@ class MainUI:
 
                 print("Not a valid option try again")
 
-        campus_users: list[Campus_user] = [
-            Campus_user(
-                1, "Anna Jónsdóttir", "anna1@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                2,
-                "Bjarni Sigurðsson",
-                "bjarni2@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                3,
-                "Elín Guðmundsdóttir",
-                "elin3@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                4, "Kári Stefánsson", "kari4@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                5, "Sara Magnúsdóttir", "sara5@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                6, "Jón Þórsson", "jon6@campus.is", "active", School_type.STAFF
-            ),
-            Campus_user(
-                7,
-                "Helga Kristinsdóttir",
-                "helga7@campus.is",
-                "active",
-                School_type.STAFF,
-            ),
-            Campus_user(
-                8, "Arnar Pétursson", "arnar8@campus.is", "active", School_type.STAFF
-            ),
-            Campus_user(
-                9,
-                "Kristín Ólafsdóttir",
-                "kristin9@campus.is",
-                "active",
-                School_type.STAFF,
-            ),
-            Campus_user(
-                10, "Davíð Einarsson", "david10@campus.is", "active", School_type.STAFF
-            ),
-            Campus_user(
-                11,
-                "Ragnar Björnsson",
-                "ragnar11@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                12,
-                "Lilja Sigfúsdóttir",
-                "lilja12@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                13,
-                "Stefán Gíslason",
-                "stefan13@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-            Campus_user(
-                14, "María Björk", "maria14@campus.is", "active", School_type.STUDENT
-            ),
-            Campus_user(
-                15,
-                "Óskar Þórðarson",
-                "oskar15@campus.is",
-                "active",
-                School_type.STUDENT,
-            ),
-        ]
-
-        events: list[Event] = [
-            Event(
-                1,
-                "Campus Coding Night",
-                "Students meet to work on coding projects together.",
-                ["coding", "tech", "collaboration"],
-                "Engineering",
-                datetime(2026, 3, 10, 18, 0),
-                "Room E301",
-                False,
-                "active",
-                "1",
-            ),
-            Event(
-                2,
-                "Photography Walk",
-                "Campus photo walk for students interested in photography.",
-                ["photography", "creative", "outdoors"],
-                "Arts",
-                datetime(2026, 3, 12, 16, 30),
-                "Campus Main Entrance",
-                False,
-                "active",
-                "2",
-            ),
-            Event(
-                3,
-                "Startup Meetup",
-                "Discussion about student startups and entrepreneurship.",
-                ["business", "startup", "networking"],
-                "Business",
-                datetime(2026, 3, 15, 17, 0),
-                "Innovation Hub",
-                False,
-                "active",
-                "3",
-            ),
-            Event(
-                4,
-                "Staff Strategy Meeting",
-                "Internal planning meeting for upcoming campus events.",
-                ["staff", "planning"],
-                "Administration",
-                datetime(2026, 3, 11, 9, 0),
-                "Admin Building Room 2",
-                True,
-                "scheduled",
-                "4",
-            ),
-            Event(
-                5,
-                "Training Session",
-                "Open fitness training for students interested in movement.",
-                ["sport", "fitness"],
-                "Sports",
-                datetime(2026, 3, 14, 19, 0),
-                "Campus Gym Hall",
-                False,
-                "active",
-                "5",
-            ),
-        ]
+        user_list = campus_users
+        event_list = events
 
         while True:
             print(border(SCALE))
@@ -195,7 +60,7 @@ class MainUI:
                 pass
 
             if response == "3":
-                pass
+                self._adminUI.accept_reject_event()
 
             if response == "q":
                 break

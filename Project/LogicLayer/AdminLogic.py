@@ -8,8 +8,7 @@ class AdminLogic():
         Takes in an event Object and the decision of the admin (True/False)
 
         Returns a message from the decision
-        """
-        
+        """        
         # If the decision is True
         if decision:
             event.status = Event_status.ACTIVE
