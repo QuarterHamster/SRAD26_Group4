@@ -1,0 +1,5 @@
+from Models import User
+
+class Administrator(User):
+    def __init__(self, user_id, name, email, user_status):
+        super().__init__(user_id, name, email, user_status)
