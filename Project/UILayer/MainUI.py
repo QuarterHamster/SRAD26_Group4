@@ -49,7 +49,7 @@ class MainUI:
             print(border(SCALE))
             for e in events:
                 privacy = "Private" if e.is_private else "Public"
-                print(f"{e.uuid}. {e.event_name} [{privacy}]")
+                print(f"{e.event_name} [{privacy}]")
 
         def choose_event():
             list_events_short()
