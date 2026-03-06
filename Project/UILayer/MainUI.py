@@ -1,8 +1,10 @@
+
+
 from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
-from Models.Events import Event
+from Models.Event import Event
 from datetime import datetime
-
+from LogicLayer import LogicLayerAPI
 
 class MainUI:
     def run(self):
@@ -192,7 +194,19 @@ class MainUI:
                 pass
 
             if response == "2":
-                pass
+                event_name: str = input("Event Name: ")
+                event_description: str = input("Event Description: ")
+                #event_tags: str = input("Event Tags: ")
+                # Branch type dropdown menu
+                date_time: str = input("Event Date: ")
+                event_location: str = input("Event Location: ")
+                # is private is False
+                # creator is id:1
+                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK, date_time, event_location,False, 1)
+                events.append(new_event)
+                print(new_event)
+
+
 
             if response == "3":
                 pass

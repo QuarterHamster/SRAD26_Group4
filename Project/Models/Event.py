@@ -51,6 +51,7 @@ class Event:
         self.status = status
         self.creator = creator
         self.attendees = []
+        self.invitees = []
 
     def __str__(self):
         return f"Creator: {self.creator}\nName: {self.event_name}\nDescription: {self.description}\nTags: {', '.join(i for i in (self.event_tags))}\nBranch: {self.branch_type}\nThe event is at: {self.date_time}\nLocation: {self.location}"
