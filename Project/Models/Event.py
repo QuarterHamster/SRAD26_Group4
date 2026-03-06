@@ -27,8 +27,9 @@ class Event:
         self.uuid = uuid
         self.event_name = event_name
         self.description = description
-        self.event_tags = event_tags
         self.time_tags = self._derive_time_tags(date_time)
+        base_tags = [tag.strip().lower() for tag in (event_tags or []) if isinstance(tag, str) and tag.strip()]
+        self.event_tags = sorted(set(base_tags + self.time_tags))
         self.branch_type = branch_type
         self.date_time = date_time
         self.location = location
