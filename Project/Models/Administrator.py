@@ -1,4 +1,4 @@
-from Models import User
+from Models.User import User
 
 class Administrator(User):
     def __init__(self, user_id, name, email, user_status):
