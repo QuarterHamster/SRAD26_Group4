@@ -59,7 +59,27 @@ class MainUI:
 
             for e in visible_events:
                 privacy = "Private" if e.is_private else "Public"
-                print(f"{e.event_name} [{privacy}]")
+                tags_text = ", ".join(e.time_tags)
+                print(f"{e.event_name} [{privacy}] | Time tags: {tags_text}")
+
+        def filter_events_by_time_tag():
+            user_id = input("Enter your user id: ").strip()
+            time_tag = input("Enter a time tag (morning/afternoon/evening/night/weekday/weekend/month): ").strip().lower()
+            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+            filtered_events = [e for e in visible_events if time_tag in e.time_tags]
+
+            print(border(SCALE))
+            print(walls(SCALE, f"Events with tag: {time_tag}"))
+            print(border(SCALE))
+
+            if len(filtered_events) == 0:
+                print("No events found for that time tag.")
+                return
+
+            for e in filtered_events:
+                privacy = "Private" if e.is_private else "Public"
+                tags_text = ", ".join(e.time_tags)
+                print(f"{e.event_name} [{privacy}] | Time tags: {tags_text}")
 
         def choose_event():
             list_events_short()
@@ -121,10 +141,11 @@ class MainUI:
             print(walls(SCALE, "2. Create Event"))
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
             print(walls(SCALE, "4. View Attendees For Event"))
+            print(walls(SCALE, "5. Filter Events By Time Tag"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "4", "q"])
+            response: str = user_input(["1", "2", "3", "4", "5", "q"])
             print(border())
 
             if response == "1":
@@ -161,6 +182,9 @@ class MainUI:
 
             if response == "4":
                 show_attendees_for_event()
+
+            if response == "5":
+                filter_events_by_time_tag()
 
             if response == "q":
                 break
