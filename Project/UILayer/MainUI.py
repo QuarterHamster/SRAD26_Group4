@@ -255,9 +255,20 @@ class MainUI:
                 # Branch type dropdown menu
                 date_time: str = input("Event Date: ")
                 event_location: str = input("Event Location: ")
-                # is private is False
+                visibility = True
+                while True:
+                    is_private: str = input("Should the event be private? Y/N: ")
+                    if is_private.lower() == "y":
+                        visibility = False
+                        break
+                    elif is_private.lower() == "n":
+                        visibility = True
+                        break
+                    else:
+                        print("Invalid Input")
+                        continue
                 # creator is id:1
-                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK, date_time, event_location,False, 1)
+                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK.value, date_time, event_location,visibility, 1)
                 events.append(new_event)
                 print(new_event)
 
