@@ -39,7 +39,8 @@ class MainUI:
             print(walls(SCALE, "Events"))
             print(border(SCALE))
             for e in events:
-                print(f"{e.uuid}. {e.event_name}")
+                privacy = "Private" if e.is_private else "Public"
+                print(f"{e.uuid}. {e.event_name} [{privacy}]")
 
         def choose_event():
             list_events_short()
@@ -52,9 +53,19 @@ class MainUI:
 
         def show_attendees_for_event():
             chosen = choose_event()
+
+            # Simple privacy rule: do not reveal attendees for private events
+            if chosen.is_private:
+                print(border(SCALE))
+                print(walls(SCALE, "This event is private. Attendees are hidden."))
+                print(border(SCALE))
+                return
+
             print(border(SCALE))
             print(walls(SCALE, f"Attendees for: {chosen.event_name}"))
             print(border(SCALE))
+
+            print(f"Total attendees: {len(chosen.attendees)}")
 
             if len(chosen.attendees) == 0:
                 print("No attendees yet.")
@@ -208,7 +219,11 @@ class MainUI:
         # --- Hardcoded attendees for User Story #14 ---
         events[0].attendees = ["Anna Jónsdóttir", "Bjarni Sigurðsson", "Jón Þórsson"]
         events[1].attendees = ["Elín Guðmundsdóttir", "Kári Stefánsson"]
-        events[2].attendees = ["Sara Magnúsdóttir", "Helga Kristinsdóttir", "Arnar Pétursson"]
+        events[2].attendees = [
+            "Sara Magnúsdóttir",
+            "Helga Kristinsdóttir",
+            "Arnar Pétursson",
+        ]
         # events[3] is private -> keep empty
         events[4].attendees = ["Ragnar Björnsson"]
 
