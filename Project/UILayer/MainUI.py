@@ -33,6 +33,35 @@ class MainUI:
 
                 print("Not a valid option try again")
 
+        # --- Helper functions for events/attendees (US#14) ---
+        def list_events_short():
+            print(border(SCALE))
+            print(walls(SCALE, "Events"))
+            print(border(SCALE))
+            for e in events:
+                print(f"{e.uuid}. {e.event_name}")
+
+        def choose_event():
+            list_events_short()
+            while True:
+                picked = input("Enter event id: ").strip()
+                for e in events:
+                    if str(e.uuid) == picked:
+                        return e
+                print("Event not found, try again.")
+
+        def show_attendees_for_event():
+            chosen = choose_event()
+            print(border(SCALE))
+            print(walls(SCALE, f"Attendees for: {chosen.event_name}"))
+            print(border(SCALE))
+
+            if len(chosen.attendees) == 0:
+                print("No attendees yet.")
+            else:
+                for a in chosen.attendees:
+                    print("- " + a)
+
         campus_users: list[Campus_user] = [
             Campus_user(
                 1, "Anna Jónsdóttir", "anna1@campus.is", "active", School_type.STUDENT
@@ -176,26 +205,37 @@ class MainUI:
             ),
         ]
 
+        # --- Hardcoded attendees for User Story #14 ---
+        events[0].attendees = ["Anna Jónsdóttir", "Bjarni Sigurðsson", "Jón Þórsson"]
+        events[1].attendees = ["Elín Guðmundsdóttir", "Kári Stefánsson"]
+        events[2].attendees = ["Sara Magnúsdóttir", "Helga Kristinsdóttir", "Arnar Pétursson"]
+        # events[3] is private -> keep empty
+        events[4].attendees = ["Ragnar Björnsson"]
+
         while True:
             print(border(SCALE))
             print(walls(SCALE))
             print(walls(SCALE, "1. See Events"))
             print(walls(SCALE, "2. Create Event"))
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
+            print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "q"])
+            response: str = user_input(["1", "2", "3", "4", "q"])
             print(border())
 
             if response == "1":
-                pass
+                list_events_short()
 
             if response == "2":
                 pass
 
             if response == "3":
                 pass
+
+            if response == "4":
+                show_attendees_for_event()
 
             if response == "q":
                 break
