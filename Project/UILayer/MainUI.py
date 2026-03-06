@@ -37,10 +37,23 @@ class MainUI:
 
         # --- Helper functions for events/attendees (US#14) ---
         def list_events_short():
+            try:
+                user_id = input("Enter your user id: ").strip()
+            except ValueError:
+                print("Invalid user id")
+                return
+
+            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+
             print(border(SCALE))
             print(walls(SCALE, "Events"))
             print(border(SCALE))
-            for e in events:
+
+            if not visible_events:
+                print("No visible events.")
+                return
+
+            for e in visible_events:
                 privacy = "Private" if e.is_private else "Public"
                 print(f"{e.uuid}. {e.event_name} [{privacy}]")
 
