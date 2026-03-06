@@ -27,7 +27,7 @@ class EventLogic:
         :return:
         """
         uuid = str(uuid4())
-        new_event = Event(uuid, event_name, description, event_tags, branch_type, date_time, location, is_private, "proposed", creator)
+        new_event = Event(uuid, event_name, description, event_tags, branch_type, date_time, location, is_private, "Pending", creator)
         DataLayerAPI.store_event(new_event)
         return new_event
 
