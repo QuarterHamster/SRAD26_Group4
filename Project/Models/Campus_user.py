@@ -1,5 +1,6 @@
-from Models import User
-from Enums import School_type
+from Models.User import User
+from Models.Enums import School_type
+
 
 class Campus_user(User):
     def __init__(self, user_id, name, email, user_status, user_type: School_type):
