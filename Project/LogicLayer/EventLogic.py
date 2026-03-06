@@ -6,7 +6,7 @@ from uuid import uuid4
 
 
 class EventLogic:
-    def create_event(self, event_name, description, event_tags, branch_type, date_time, location, is_private, status, creator) -> Event:
+    def create_event(self, event_name, description, event_tags, branch_type, date_time, location, is_private, creator) -> Event:
         """
         :param event_name:
         :type event_name: str
@@ -22,8 +22,6 @@ class EventLogic:
         :type location: str
         :param is_private:
         :type is_private: bool
-        :param status:
-        :type status: str
         :param creator: uuid of the event creator
         :type creator: str
         :return:

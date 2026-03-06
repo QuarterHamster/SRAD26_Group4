@@ -35,3 +35,4 @@ class Event:
         self.status = status
         self.creator = creator
         self.attendees = []
+        self.invitees = []
