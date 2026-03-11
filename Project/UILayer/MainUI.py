@@ -116,6 +116,10 @@ class MainUI:
 
             input("\nPress Enter to continue...")
 
+        
+        def show_sponsors():
+            pass
+
 
         user_list = campus_users
         event_list = events
@@ -142,10 +146,11 @@ class MainUI:
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
             print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "5. Filter Events By Time Tag"))
+            print(walls(SCALE, "6. Grant Sponsor permissions"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "4", "5", "q"])
+            response: str = user_input(["1", "2", "3", "4", "5", "6", "q"])
             print(border())
 
             if response == "1":
@@ -185,6 +190,9 @@ class MainUI:
 
             if response == "5":
                 filter_events_by_time_tag()
+            
+            if response == "6":
+                show_sponsors()
 
             if response == "q":
                 break
