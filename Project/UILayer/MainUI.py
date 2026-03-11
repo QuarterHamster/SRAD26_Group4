@@ -4,7 +4,8 @@ from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
 from datetime import datetime
-from UILayer.Place_holder_data import events, campus_users
+from Models.Sponsor import Sponsor
+from UILayer.Place_holder_data import events, campus_users, sponsors
 from UILayer.AdminUI import AdminUI
 from LogicLayer import LogicLayerAPI
 
@@ -117,8 +118,26 @@ class MainUI:
             input("\nPress Enter to continue...")
 
         
-        def show_sponsors():
-            pass
+        def activate_sponsors():
+            print(border(SCALE))
+            number_of_sponsor = []
+            number_of_sponsor.extend(sponsor_id for sponsor_id in range(len(sponsors)))
+            for sponsor in sponsors:
+                print(walls(SCALE),(number_of_sponsor), sponsor.name, sponsor.user_status)
+            print(border(SCALE))
+
+            select = print(walls(SCALE), input("Select sponsor number"))
+            while select not in number_of_sponsor:
+                print(border(SCALE))
+                print(walls(SCALE), f"the selected number is not available")
+                for sponsor in sponsors:
+                    print(walls(SCALE), (number_of_sponsor), sponsor.name, sponsor.user_status)
+                select = print(walls(SCALE), input("Select sponsor number"))
+                print(border(SCALE))
+                activdeactiv = {"active": "inactive", "inactive": "active"}
+            sponsor[number_of_sponsor: int].user_status = activdeactiv[sponsor.user_status]
+
+            
 
 
         user_list = campus_users
@@ -192,7 +211,7 @@ class MainUI:
                 filter_events_by_time_tag()
             
             if response == "6":
-                show_sponsors()
+                activate_sponsors()
 
             if response == "q":
                 break
