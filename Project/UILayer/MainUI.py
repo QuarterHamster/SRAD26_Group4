@@ -121,25 +121,27 @@ class MainUI:
         def activate_sponsors():
             print(border(SCALE))
             number_of_sponsor = []
-            number_of_sponsor.extend(sponsor_id for sponsor_id in range(len(sponsors)))
+            number_of_sponsor.extend(sponsor_id + 1 for sponsor_id in range(len(sponsors)))
+            i = 0
             for sponsor in sponsors:
-                print(walls(SCALE),(number_of_sponsor), sponsor.name, sponsor.user_status)
+                i += 1
+                print(walls(SCALE, (f"{i} {sponsor.name} {sponsor.user_status}")))
             print(border(SCALE))
 
-            select = print(walls(SCALE), input("Select sponsor number"))
+            select = int(input(walls(SCALE,"Select sponsor number: ")))
             while select not in number_of_sponsor:
                 print(border(SCALE))
-                print(walls(SCALE), f"the selected number is not available")
+                print(walls(SCALE, f"the selected number is not available"))
                 for sponsor in sponsors:
-                    print(walls(SCALE), (number_of_sponsor), sponsor.name, sponsor.user_status)
-                select = print(walls(SCALE), input("Select sponsor number"))
+                    print(walls(SCALE, (i, sponsor.name, sponsor.user_status)))
+                select = int(input(walls(SCALE, "Select sponsor number: ")))
                 print(border(SCALE))
-                activdeactiv = {"active": "inactive", "inactive": "active"}
-            sponsor[number_of_sponsor: int].user_status = activdeactiv[sponsor.user_status]
-
-            
-
-
+            activdeactiv = {"active": "inactive", "inactive": "active"}
+            x = sponsors[select].user_status = activdeactiv[sponsor.user_status]
+            if x is "inactive":
+                x = "deactive"
+            print(f"sponsor has been {x}ated")
+        
         user_list = campus_users
         event_list = events
 
