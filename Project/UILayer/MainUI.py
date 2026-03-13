@@ -4,7 +4,7 @@ from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
 from datetime import datetime
-from UILayer.Place_holder_data import events, campus_users
+from UILayer.Place_holder_data import events, campus_users, sponsors
 from UILayer.AdminUI import AdminUI
 from LogicLayer import LogicLayerAPI
 
@@ -91,6 +91,42 @@ class MainUI:
                 print("Event not found, try again.")
     
 
+        def post_event_as_sponsor():
+            print(border(SCALE))
+            print(walls(SCALE, "Sponsors"))
+            print(border(SCALE))
+            for s in sponsors:
+                print(f"  [{s.uuid}] {s.organization}")
+            print(border(SCALE))
+
+            sponsor_id = input("Enter your sponsor ID: ").strip()
+            sponsor = next((s for s in sponsors if s.uuid == sponsor_id), None)
+            if sponsor is None:
+                print("Sponsor not found.")
+                return
+
+            print(f"\nPosting event as: {sponsor.organization}")
+            event_name = input("Event Name: ").strip()
+            event_description = input("Event Description: ").strip()
+            date_str = input("Event Date (YYYY-MM-DD HH:MM): ").strip()
+            try:
+                event_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+            except ValueError:
+                print("Invalid date format. Use YYYY-MM-DD HH:MM.")
+                return
+            event_location = input("Event Location: ").strip()
+
+            new_event = LogicLayerAPI.create_event(
+                event_name, event_description, [],
+                Branch_type.REYKJAVÍK.value, event_date,
+                event_location, False, sponsor.uuid
+            )
+            events.append(new_event)
+            print(border(SCALE))
+            print(walls(SCALE, "Event submitted for admin review!"))
+            print(border(SCALE))
+            print(new_event)
+
         def show_attendees_for_event():
             chosen = choose_event()
 
@@ -142,10 +178,11 @@ class MainUI:
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
             print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "5. Filter Events By Time Tag"))
+            print(walls(SCALE, "6. Post Event as Sponsor"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "4", "5", "q"])
+            response: str = user_input(["1", "2", "3", "4", "5", "6", "q"])
             print(border())
 
             if response == "1":
@@ -185,6 +222,9 @@ class MainUI:
 
             if response == "5":
                 filter_events_by_time_tag()
+
+            if response == "6":
+                post_event_as_sponsor()
 
             if response == "q":
                 break
