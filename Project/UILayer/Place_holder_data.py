@@ -1,8 +1,15 @@
 from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
+from Models.Sponsor import Sponsor
 from datetime import datetime
 
+
+sponsors: list[Sponsor] = [
+    Sponsor("1", "TechCorp Iceland", "contact@techcorp.is", "active", "TechCorp Iceland"),
+    Sponsor("2", "Nordic Startup Fund", "info@nordicfund.is", "active", "Nordic Startup Fund"),
+    Sponsor("3", "Reykjavík Sports Club", "hello@rsc.is", "active", "Reykjavík Sports Club"),
+]
 
 campus_users: list[Campus_user] = [
     Campus_user(
