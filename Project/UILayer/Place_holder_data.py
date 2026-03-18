@@ -153,3 +153,14 @@ events: list[Event] = [
         "5",
     ),
 ]
+
+sponsors = [
+    Sponsor("1", "NovaTech", "contact@novatech.is", "active"),
+    Sponsor("2", "Arctic Systems", "info@arcticsystems.is", "active"),
+    Sponsor("3", "BlueWave Energy", "hello@bluewave.is", "active"),
+    Sponsor("4", "Nordic Data", "support@nordicdata.is", "inactive"),
+    Sponsor("5", "IceSoft Solutions", "team@icesoft.is", "active"),
+    Sponsor("6", "Aurora Labs", "contact@auroralabs.is", "active"),
+    Sponsor("7", "PolarTech", "info@polartech.is", "inactive"),
+    Sponsor("8", "FrostByte", "admin@frostbyte.is", "active"),
+]

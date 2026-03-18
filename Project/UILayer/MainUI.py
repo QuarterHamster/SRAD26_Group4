@@ -4,6 +4,7 @@ from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
 from datetime import datetime
+from Models.Sponsor import Sponsor
 from UILayer.Place_holder_data import events, campus_users, sponsors
 from UILayer.AdminUI import AdminUI
 from LogicLayer import LogicLayerAPI
@@ -56,11 +57,24 @@ class MainUI:
             if len(visible_events) == 0:
                 print("No visible events.")
                 return
+            i = 0
 
             for e in visible_events:
                 privacy = "Private" if e.is_private else "Public"
                 tags_text = ", ".join(e.time_tags)
-                print(f"{e.event_name} [{privacy}] | Time tags: {tags_text}")
+                i += 1
+                print(f"{i}. {e.event_name} [{privacy}] | Time tags: {tags_text}")
+            
+            print(border(SCALE))
+            print(walls(SCALE, "1. send Event details to friends"))
+            print(walls(SCALE, "b. Go back to home screen"))
+            print(border(SCALE))
+
+            response: str = user_input(["1", "b"])
+            if response == "1":
+                input("Select the event number")
+                input("enter user_id of the friend")
+                print("event sent")
 
         def filter_events_by_time_tag():
             user_id = input("Enter your user id: ").strip()
@@ -152,6 +166,30 @@ class MainUI:
 
             input("\nPress Enter to continue...")
 
+        
+        def activate_sponsors():
+            print(border(SCALE))
+            number_of_sponsor = []
+            number_of_sponsor.extend(sponsor_id + 1 for sponsor_id in range(len(sponsors)))
+            i = 0
+            for sponsor in sponsors:
+                i += 1
+                print(walls(SCALE, (f"{i} {sponsor.name} {sponsor.user_status}")))
+            print(border(SCALE))
+
+            select = int(input(walls(SCALE,"Select sponsor number: ")))
+            while select not in number_of_sponsor:
+                print(border(SCALE))
+                print(walls(SCALE, f"the selected number is not available"))
+                for sponsor in sponsors:
+                    print(walls(SCALE, (i, sponsor.name, sponsor.user_status)))
+                select = int(input(walls(SCALE, "Select sponsor number: ")))
+                print(border(SCALE))
+            activdeactiv = {"active": "inactive", "inactive": "active"}
+            x = sponsors[select].user_status = activdeactiv[sponsor.user_status]
+            if x == "inactive":
+                x = "deactive"
+            print(f"sponsor has been {x}ated")
 
         user_list = campus_users
         event_list = events
@@ -178,7 +216,7 @@ class MainUI:
             print(walls(SCALE, "3. Accept/Reject Events As Admin"))
             print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "5. Filter Events By Time Tag"))
-            print(walls(SCALE, "6. Post Event as Sponsor"))
+            print(walls(SCALE, "6. Grant Sponsor permissions"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
@@ -222,6 +260,9 @@ class MainUI:
 
             if response == "5":
                 filter_events_by_time_tag()
+            
+            if response == "6":
+                activate_sponsors()
 
             if response == "6":
                 post_event_as_sponsor()
