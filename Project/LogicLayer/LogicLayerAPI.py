@@ -19,4 +19,4 @@ def admin_event_review(event: Event, decision: bool):
 campus_user_logic = CampusUserLogic.CampusUserLogic()
 
 def view_old_events(user: Campus_user):
-    return campus_user_logic.view_old_events()
+    return campus_user_logic.view_old_events(user)
