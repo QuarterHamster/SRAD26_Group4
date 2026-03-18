@@ -47,8 +47,15 @@ class MainUI:
         def list_events_short():
             # TODO: This will need to be changed later to Name where we fetch the id from the name
             user_id = input("Enter your user id: ").strip()
-
-            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+            print("Sort events by:")
+            print("1. Date")
+            print("2. Name")
+            print("3. Branch")
+            sort_choice = user_input(["1", "2", "3"])
+            sort_map = {"1": "date", "2": "name", "3": "branch"}
+            visible_events = LogicLayerAPI.event_logic.sort_visible_events(
+                events, user_id, sort_map[sort_choice]
+            )
 
             print(border(SCALE))
             print(walls(SCALE, "Events"))
@@ -62,6 +69,10 @@ class MainUI:
             for e in visible_events:
                 privacy = "Private" if e.is_private else "Public"
                 tags_text = ", ".join(e.time_tags)
+                print(
+                    f"{e.event_name} [{privacy}] | {e.date_time:%Y-%m-%d %H:%M} | "
+                    f"{e.branch_type} | Time tags: {tags_text}"
+                )
                 i += 1
                 print(f"{i}. {e.event_name} [{privacy}] | Time tags: {tags_text}")
             

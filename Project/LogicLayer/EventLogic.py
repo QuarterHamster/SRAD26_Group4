@@ -53,6 +53,18 @@ class EventLogic:
 
         return visible_events
 
+    def sort_visible_events(self, events, user_id, sort_by="date"):
+        visible_events = self.get_visible_events(events, user_id)
+        criterion = str(sort_by).strip().lower()
+
+        if criterion == "name":
+            return sorted(visible_events, key=lambda event: event.event_name.lower())
+        if criterion == "branch":
+            return sorted(visible_events, key=lambda event: str(event.branch_type).lower())
+
+        # Default sort is by event date/time.
+        return sorted(visible_events, key=lambda event: event.date_time)
+
 # EventLogic = EventLogic()
 # test_time = datetime.datetime
 # a = EventLogic.create_event("Test Event", "This event is for testing project features", [],"Reykjvík", test_time, "Sindris house", False, "uuid")
