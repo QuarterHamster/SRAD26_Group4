@@ -1,5 +1,5 @@
-from Models import Event, Administrator, Sponsor
-from DataLayer import EventIO, AdminIO, SponsorIO
+from Models import Event, Administrator, Sponsor, Campus_user
+from DataLayer import EventIO, AdminIO, SponsorIO, Campus_userIO
 # Event API
 def store_event(new_event):
     """Stores new events in a JSON file to be fetched later.
@@ -112,4 +112,42 @@ def update_sponsor(uuid: str, updated_sponsor: Sponsor) -> None:
     :type updated_sponsor: sponsor
     """
     SponsorIO.update_sponsor(uuid, updated_sponsor)
+
+# Campus user API
+
+def store_campus_user(campus_user: Campus_user) -> None:
+    """Stores new campus_users in a JSON file to be fetched later.
+
+    :param campus_user:
+        The campus_user object to store.
+    :type campus_user: campus_user
+    """
+    Campus_userIO.store_campus_user(campus_user)
+
+
+def load_campus_users() -> list[Campus_user]:
+    """Gets a list of all campus_users stored with the store_campus_user function.
+
+    :returns:
+        The list of campus_users.
+    :rtype: list[campus_user]
+    """
+    return Campus_userIO.load_campus_users()
+
+
+def update_campus_user(uuid: str, updated_campus_user: Campus_user) -> None:
+    """Updates a campus_user stored with the store_campus_user function.
+
+    Looks for a campus_user stored with the store_campus_user function which
+    has the same uuid as the given uuid, then updates that campus_user.
+
+    :param uuid:
+        uuid to look up campus_user to update.
+    :type uuid: str
+
+    :param updated_campus_user:
+        The campus_user object to update the campus_user to.
+    :type updated_campus_user: campus_user
+    """
+    Campus_userIO.update_campus_user(uuid, updated_campus_user)
 
