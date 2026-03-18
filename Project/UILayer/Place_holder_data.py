@@ -1,6 +1,7 @@
 from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
+from Models.Sponsor import Sponsor
 from datetime import datetime
 
 
@@ -145,4 +146,15 @@ events: list[Event] = [
         Event_status.ACTIVE,
         "5",
     ),
+]
+
+sponsors = [
+    Sponsor("1", "NovaTech", "contact@novatech.is", "active"),
+    Sponsor("2", "Arctic Systems", "info@arcticsystems.is", "active"),
+    Sponsor("3", "BlueWave Energy", "hello@bluewave.is", "active"),
+    Sponsor("4", "Nordic Data", "support@nordicdata.is", "inactive"),
+    Sponsor("5", "IceSoft Solutions", "team@icesoft.is", "active"),
+    Sponsor("6", "Aurora Labs", "contact@auroralabs.is", "active"),
+    Sponsor("7", "PolarTech", "info@polartech.is", "inactive"),
+    Sponsor("8", "FrostByte", "admin@frostbyte.is", "active"),
 ]
