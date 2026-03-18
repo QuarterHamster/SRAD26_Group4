@@ -10,7 +10,7 @@ class CampusUserLogic:
         past_events: list = []
 
         for i in events:
-            if (i.status is Event_status.ENDED) and (user.name in i.attendees) :
+            if (i.status is Event_status.ENDED) and (user.email in i.attendees) :
                 past_events.append(i.event_name)
         
         if not past_events: return "You have no past events"
