@@ -1,5 +1,5 @@
-from Models import Event, Administrator
-from DataLayer import EventIO, AdminIO
+from Models import Event, Administrator, Sponsor
+from DataLayer import EventIO, AdminIO, SponsorIO
 # Event API
 def store_event(new_event):
     """Stores new events in a JSON file to be fetched later.
@@ -74,3 +74,42 @@ def update_admin(uuid: str, updated_admin: Administrator) -> None:
     :type updated_admin: admin
     """
     AdminIO.update_admin(uuid, updated_admin)
+
+# Sponsor API
+
+def store_sponsor(sponsor: Sponsor) -> None:
+    """Stores new sponsors in a JSON file to be fetched later.
+
+    :param sponsor:
+        The sponsor object to store.
+    :type sponsor: sponsor
+    """
+    SponsorIO.store_sponsor(sponsor)
+
+
+def load_sponsors() -> list[Sponsor]:
+    """Gets a list of all sponsors stored with the store_sponsor function.
+
+    :returns:
+        The list of sponsors.
+    :rtype: list[sponsor]
+    """
+    return SponsorIO.load_sponsors()
+
+
+def update_sponsor(uuid: str, updated_sponsor: Sponsor) -> None:
+    """Updates a sponsor stored with the store_sponsor function.
+
+    Looks for a sponsor stored with the store_sponsor function which
+    has the same uuid as the given uuid, then updates that sponsor.
+
+    :param uuid:
+        uuid to look up sponsor to update.
+    :type uuid: str
+
+    :param updated_sponsor:
+        The sponsor object to update the sponsor to.
+    :type updated_sponsor: sponsor
+    """
+    SponsorIO.update_sponsor(uuid, updated_sponsor)
+
