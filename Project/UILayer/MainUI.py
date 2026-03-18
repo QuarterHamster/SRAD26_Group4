@@ -1,5 +1,3 @@
-
-
 from Models.Campus_user import Campus_user
 from Models.Enums import School_type, Event_tags, Branch_type, Event_status
 from Models.Event import Event
@@ -7,6 +5,7 @@ from datetime import datetime
 from UILayer.Place_holder_data import events, campus_users
 from UILayer.AdminUI import AdminUI
 from LogicLayer import LogicLayerAPI
+from UILayer.ScreenOptions import ScreenOptions
 
 
 class MainUI:
@@ -41,13 +40,13 @@ class MainUI:
 
                 print("Not a valid option try again")
 
-
-
         def list_events_short():
             # TODO: This will need to be changed later to Name where we fetch the id from the name
             user_id = input("Enter your user id: ").strip()
 
-            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+            visible_events = LogicLayerAPI.event_logic.get_visible_events(
+                events, user_id
+            )
 
             print(border(SCALE))
             print(walls(SCALE, "Events"))
@@ -64,8 +63,16 @@ class MainUI:
 
         def filter_events_by_time_tag():
             user_id = input("Enter your user id: ").strip()
-            time_tag = input("Enter a time tag (morning/afternoon/evening/night/weekday/weekend/month): ").strip().lower()
-            visible_events = LogicLayerAPI.event_logic.get_visible_events(events, user_id)
+            time_tag = (
+                input(
+                    "Enter a time tag (morning/afternoon/evening/night/weekday/weekend/month): "
+                )
+                .strip()
+                .lower()
+            )
+            visible_events = LogicLayerAPI.event_logic.get_visible_events(
+                events, user_id
+            )
             filtered_events = [e for e in visible_events if time_tag in e.time_tags]
 
             print(border(SCALE))
@@ -89,7 +96,6 @@ class MainUI:
                     if str(e.event_name) == picked:
                         return e
                 print("Event not found, try again.")
-    
 
         def show_attendees_for_event():
             chosen = choose_event()
@@ -116,12 +122,15 @@ class MainUI:
 
             input("\nPress Enter to continue...")
 
-
         user_list = campus_users
         event_list = events
 
         # --- Hardcoded attendees for User Story #14 ---
-        event_list[0].attendees = ["Anna Jónsdóttir", "Bjarni Sigurðsson", "Jón Þórsson"]
+        event_list[0].attendees = [
+            "Anna Jónsdóttir",
+            "Bjarni Sigurðsson",
+            "Jón Þórsson",
+        ]
         event_list[1].attendees = ["Elín Guðmundsdóttir", "Kári Stefánsson"]
         event_list[2].attendees = [
             "Sara Magnúsdóttir",
@@ -154,7 +163,7 @@ class MainUI:
             if response == "2":
                 event_name: str = input("Event Name: ")
                 event_description: str = input("Event Description: ")
-                #event_tags: str = input("Event Tags: ")
+                # event_tags: str = input("Event Tags: ")
                 # Branch type dropdown menu
                 date_time: str = input("Event Date: ")
                 event_location: str = input("Event Location: ")
@@ -171,11 +180,18 @@ class MainUI:
                         print("Invalid Input")
                         continue
                 # creator is id:1
-                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK.value, date_time, event_location,visibility, 1)
+                new_event = LogicLayerAPI.create_event(
+                    event_name,
+                    event_description,
+                    [],
+                    Branch_type.REYKJAVÍK.value,
+                    date_time,
+                    event_location,
+                    visibility,
+                    1,
+                )
                 events.append(new_event)
                 print(new_event)
-
-
 
             if response == "3":
                 self._adminUI.accept_reject_event()
