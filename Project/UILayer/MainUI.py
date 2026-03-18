@@ -57,11 +57,24 @@ class MainUI:
             if len(visible_events) == 0:
                 print("No visible events.")
                 return
+            i = 0
 
             for e in visible_events:
                 privacy = "Private" if e.is_private else "Public"
                 tags_text = ", ".join(e.time_tags)
-                print(f"{e.event_name} [{privacy}] | Time tags: {tags_text}")
+                i += 1
+                print(f"{i}. {e.event_name} [{privacy}] | Time tags: {tags_text}")
+            
+            print(border(SCALE))
+            print(walls(SCALE, "1. send Event details to friends"))
+            print(walls(SCALE, "b. Go back to home screen"))
+            print(border(SCALE))
+
+            response: str = user_input(["1", "b"])
+            if response == "1":
+                input("Select the event number")
+                input("enter user_id of the friend")
+                print("event sent")
 
         def filter_events_by_time_tag():
             user_id = input("Enter your user id: ").strip()
@@ -138,10 +151,10 @@ class MainUI:
                 print(border(SCALE))
             activdeactiv = {"active": "inactive", "inactive": "active"}
             x = sponsors[select].user_status = activdeactiv[sponsor.user_status]
-            if x is "inactive":
+            if x == "inactive":
                 x = "deactive"
             print(f"sponsor has been {x}ated")
-        
+
         user_list = campus_users
         event_list = events
 
