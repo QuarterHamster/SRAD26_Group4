@@ -42,7 +42,29 @@ class MainUI:
 
                 print("Not a valid option try again")
 
-
+        def create_event():
+            event_name: str = input("Event Name: ")
+            event_description: str = input("Event Description: ")
+            #event_tags: str = input("Event Tags: ")
+            # Branch type dropdown menu
+            date_time: str = input("Event Date: ")
+            event_location: str = input("Event Location: ")
+            visibility = True
+            while True:
+                is_private: str = input("Should the event be private? Y/N: ")
+                if is_private.lower() == "y":
+                    visibility = False
+                    break
+                elif is_private.lower() == "n":
+                    visibility = True
+                    break
+                else:
+                    print("Invalid Input")
+                    continue
+            # creator is id:1
+            new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK.value, date_time, event_location,visibility, 1)
+            events.append(new_event)
+            print(new_event)
 
         def list_events_short():
             # TODO: This will need to be changed later to Name where we fetch the id from the name
@@ -103,7 +125,6 @@ class MainUI:
                     if str(e.event_name) == picked:
                         return e
                 print("Event not found, try again.")
-    
 
         def post_event_as_sponsor():
             print(border(SCALE))
@@ -166,7 +187,6 @@ class MainUI:
 
             input("\nPress Enter to continue...")
 
-        
         def activate_sponsors():
             print(border(SCALE))
             number_of_sponsor = []
@@ -217,40 +237,18 @@ class MainUI:
             print(walls(SCALE, "4. View Attendees For Event"))
             print(walls(SCALE, "5. Filter Events By Time Tag"))
             print(walls(SCALE, "6. Grant Sponsor permissions"))
+            print(walls(SCALE, "7. Post event as sponsor"))
             print(walls(SCALE, "q. Quit"))
             print(walls(SCALE))
 
-            response: str = user_input(["1", "2", "3", "4", "5", "6", "q"])
+            response: str = user_input(["1", "2", "3", "4", "5", "6", "7", "q"])
             print(border())
 
             if response == "1":
                 list_events_short()
 
             if response == "2":
-                event_name: str = input("Event Name: ")
-                event_description: str = input("Event Description: ")
-                #event_tags: str = input("Event Tags: ")
-                # Branch type dropdown menu
-                date_time: str = input("Event Date: ")
-                event_location: str = input("Event Location: ")
-                visibility = True
-                while True:
-                    is_private: str = input("Should the event be private? Y/N: ")
-                    if is_private.lower() == "y":
-                        visibility = False
-                        break
-                    elif is_private.lower() == "n":
-                        visibility = True
-                        break
-                    else:
-                        print("Invalid Input")
-                        continue
-                # creator is id:1
-                new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK.value, date_time, event_location,visibility, 1)
-                events.append(new_event)
-                print(new_event)
-
-
+                create_event()
 
             if response == "3":
                 self._adminUI.accept_reject_event()
@@ -264,7 +262,7 @@ class MainUI:
             if response == "6":
                 activate_sponsors()
 
-            if response == "6":
+            if response == "7":
                 post_event_as_sponsor()
 
             if response == "q":
