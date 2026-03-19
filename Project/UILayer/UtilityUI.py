@@ -1,5 +1,5 @@
 class UtilityUI:
-    """Holds utility function used widely in the UI layer"""
+    """Holds utility functions used widely in the UI layer."""
 
     def __init__(self) -> None:
         self.SCALE: int = 80
@@ -15,7 +15,7 @@ class UtilityUI:
         """
         if scale <= 0:
             scale = self.SCALE
-            
+
         return f"{('-' * self.SCALE)[:scale]}"
 
     def walls(self, scale: int = 0, text: str = "") -> str:
@@ -42,7 +42,7 @@ class UtilityUI:
         padding_right = inner_width - len(text) - padding_left
 
         return "|" + " " * padding_left + text + " " * padding_right + "|"
-    
+
     def show_box(self, *lines: str, scale: int = 0) -> None:
         """
         Prints a bordered text box.
@@ -79,7 +79,7 @@ class UtilityUI:
                 return response
 
             print("Not a valid option, try again")
-        
+
     def pause(self, message: str = "\nPress Enter to continue...") -> None:
         """
         Pauses the flow until the user presses enter.
