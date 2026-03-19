@@ -14,7 +14,25 @@ class ScreenOptions(StrEnum):
     application's screen-routing system.
     """
 
-    START_SCREEN = "StartScreen"
-    QUIT = "Quit"
+    LOGIN_SCREEN = "LoginScreen"
 
-    ACCEPT_REJECT_EVENT = "Accept_reject_event"
+    ADMIN_HOME = "AdminHomeScreen"
+    ADMIN_SEE_EVENTS = "AdminSeeEvents"
+    ADMIN_CREATE_EVENT = "AdminCreateEvent"
+    ADMIN_ACCEPT_REJECT_EVENT = "AdminAcceptRejectEvent"
+    ADMIN_VIEW_ATTENDEES = "AdminViewAttendees"
+    ADMIN_FILTER_EVENTS = "AdminFilterEvents"
+
+    USER_HOME = "UserHomeScreen"
+    USER_SEE_EVENTS = "UserSeeEvents"
+    USER_CREATE_EVENT = "UserCreateEvent"
+    USER_VIEW_ATTENDEES = "UserViewAttendees"
+    USER_FILTER_EVENTS = "UserFilterEvents"
+
+    SPONSOR_HOME = "SponsorHomeScreen"
+    SPONSOR_SEE_EVENTS = "SponsorSeeEvents"
+    SPONSOR_CREATE_EVENT = "SponsorCreateEvent"
+    SPONSOR_VIEW_ATTENDEES = "SponsorViewAttendees"
+    SPONSOR_FILTER_EVENTS = "SponsorFilterEvents"
+
+    QUIT = "Quit"

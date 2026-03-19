@@ -4,66 +4,103 @@ from Models.Event import Event
 from LogicLayer import LogicLayerAPI
 from UILayer.ScreenOptions import ScreenOptions
 from UILayer.UtilityUI import UtilityUI
+from UILayer.UserUI import UserUI
 
 
-class AdminUI:
-    def __init__(self):
-        self._utilityUI = UtilityUI()
-        self.SCALE = self._utilityUI.SCALE
+class AdminUI(UserUI):
+    """Handles admin screens and admin-only actions."""
 
-    def start_screen(self) -> ScreenOptions:
-        print(self._utilityUI.border(self.SCALE))
-        print(self._utilityUI.walls(self.SCALE))
-        print(self._utilityUI.walls(self.SCALE, "1. See Events"))
-        print(self._utilityUI.walls(self.SCALE, "2. Create Event"))
-        print(self._utilityUI.walls(self.SCALE, "3. Accept/Reject Events As Admin"))
-        print(self._utilityUI.walls(self.SCALE, "4. View Attendees For Event"))
-        print(self._utilityUI.walls(self.SCALE, "5. Filter Events By Time Tag"))
-        print(self._utilityUI.walls(self.SCALE, "q. Quit"))
-        print(self._utilityUI.walls(self.SCALE))
+    ROLE_TITLE = "Admin"
+    HOME_SCREEN = ScreenOptions.ADMIN_HOME
+    SEE_EVENTS_SCREEN = ScreenOptions.ADMIN_SEE_EVENTS
+    CREATE_EVENT_SCREEN = ScreenOptions.ADMIN_CREATE_EVENT
+    VIEW_ATTENDEES_SCREEN = ScreenOptions.ADMIN_VIEW_ATTENDEES
+    FILTER_EVENTS_SCREEN = ScreenOptions.ADMIN_FILTER_EVENTS
+    ACCEPT_REJECT_EVENT_SCREEN = ScreenOptions.ADMIN_ACCEPT_REJECT_EVENT
 
-        response: str = self._utilityUI.user_input(["1", "2", "3", "4", "5", "q"])
-        print(self._utilityUI.border())
+    def home_screen(self) -> ScreenOptions:
+        """
+        Renders the admin home screen and returns the next screen.
 
-        if response == "q":
-            return ScreenOptions.QUIT
+        :return: Next screen to navigate to.
+        :rtype: ScreenOptions
+        """
+        self._utilityUI.show_box(
+            "",
+            "Admin Menu",
+            "1. See Events",
+            "2. Create Event",
+            "3. Accept/Reject Events",
+            "4. View Attendees For Event",
+            "5. Filter Events By Time Tag",
+            "b. Log Out",
+            "q. Quit",
+            "",
+        )
 
-    def login_screen(self) -> ScreenOptions:
-        pass
-
-
+        response = self._utilityUI.user_input(["1", "2", "3", "4", "5", "b", "q"])
+        screen_map = {
+            "1": self.SEE_EVENTS_SCREEN,
+            "2": self.CREATE_EVENT_SCREEN,
+            "3": self.ACCEPT_REJECT_EVENT_SCREEN,
+            "4": self.VIEW_ATTENDEES_SCREEN,
+            "5": self.FILTER_EVENTS_SCREEN,
+            "b": ScreenOptions.LOGIN_SCREEN,
+            "q": ScreenOptions.QUIT,
+        }
+        return screen_map[response]
 
     def accept_reject_event(self) -> ScreenOptions:
-        pending_events: list = []
+        """
+        Lets an admin review pending events.
 
-        for event in events:
-            if event.status is Event_status.PENDING:
-                pending_events.append(event.event_name)
+        :return: The next screen to navigate to.
+        :rtype: ScreenOptions
+        """
+        pending_events = [
+            event for event in events if event.status is Event_status.PENDING
+        ]
 
-        print(pending_events)
-        print("------------------------------------")
-        selected_event = input("Select an event to review>> ")
+        if len(pending_events) == 0:
+            self._utilityUI.show_box(
+                "",
+                "No pending events to review.",
+                "",
+                scale=self.SCALE,
+            )
+            self._utilityUI.pause()
+            return self.HOME_SCREEN
 
-        for event in events:
-            if selected_event == event.event_name:
-                selected_event = event
-                event_obj = event
-                break
+        self._utilityUI.show_box(
+            "",
+            "Pending Events",
+            "",
+            scale=self.SCALE,
+        )
+        for index, event in enumerate(pending_events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
 
-        print("--- Event Details ---")
-        print(event, "\n")
+        valid_options = [str(i) for i in range(1, len(pending_events) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
 
-        print("Accept or Decline the event")
+        if selection == "b":
+            return self.HOME_SCREEN
+
+        event_obj = pending_events[int(selection) - 1]
+
+        print("\n--- Event Details ---")
+        print(event_obj)
+        print("\nAccept or decline the event")
         print("1. Accept")
         print("2. Decline")
-        respond = input(">> ")
+        print("b. Back")
 
-        if respond == "1":
-            result = True
+        response = self._utilityUI.user_input(["1", "2", "b"])
+        if response == "b":
+            return self.HOME_SCREEN
 
-        elif respond == "2":
-            result = False
-
+        result = response == "1"
         print(LogicLayerAPI.admin_event_review(event_obj, result))
-
-        return ScreenOptions.START_SCREEN
+        self._utilityUI.pause()
+        return self.HOME_SCREEN
