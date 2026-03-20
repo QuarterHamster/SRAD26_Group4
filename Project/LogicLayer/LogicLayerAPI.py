@@ -14,7 +14,7 @@ def create_event(
     location,
     is_private,
     creator,
-    status="proposed",
+    status,
 ):
     return event_logic.create_event(
         event_name,

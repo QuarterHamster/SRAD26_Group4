@@ -37,6 +37,7 @@ class MainUI:
             ScreenOptions.USER_CREATE_EVENT: self._userUI.create_event_screen,
             ScreenOptions.USER_VIEW_ATTENDEES: self._userUI.view_attendees_screen,
             ScreenOptions.USER_FILTER_EVENTS: self._userUI.filter_events_screen,
+            ScreenOptions.OLD_EVENTS_SCREEN: self._userUI.see_old_events,
             ScreenOptions.SPONSOR_HOME: self._sponsorUI.home_screen,
             ScreenOptions.SPONSOR_SEE_EVENTS: self._sponsorUI.see_events_screen,
             ScreenOptions.SPONSOR_CREATE_EVENT: self._sponsorUI.create_event_screen,

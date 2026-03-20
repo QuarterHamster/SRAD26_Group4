@@ -58,8 +58,8 @@ class Event:
 
     def invite_user(self, user_id):
         user_id = str(user_id)
-        if user_id not in self.invited_users:
-            self.invited_users.append(user_id)
+        if user_id not in self.attendees:
+            self.attendees.append(user_id)
 
     def add_attendee(self, attendee_name):
         attendee_name = str(attendee_name).strip()

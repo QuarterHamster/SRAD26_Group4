@@ -17,6 +17,7 @@ class UserUI:
     CREATE_EVENT_SCREEN = ScreenOptions.USER_CREATE_EVENT
     VIEW_ATTENDEES_SCREEN = ScreenOptions.USER_VIEW_ATTENDEES
     FILTER_EVENTS_SCREEN = ScreenOptions.USER_FILTER_EVENTS
+    OLD_EVENTS_SCREEN = ScreenOptions.OLD_EVENTS_SCREEN
     CAN_JOIN_EVENTS = True
     CAN_CREATE_PRIVATE_EVENTS = True
     CAN_VIEW_PRIVATE_ATTENDEES = False
@@ -54,17 +55,19 @@ class UserUI:
             "2. Create Event",
             "3. View Attendees For Event",
             "4. Filter Events",
+            "5. View Old Events",
             "b. Log Out",
             "q. Quit",
             "",
         )
 
-        response = self._utilityUI.user_input(["1", "2", "3", "4", "b", "q"])
+        response = self._utilityUI.user_input(["1", "2", "3", "4", "5", "b", "q"])
         screen_map = {
             "1": self.SEE_EVENTS_SCREEN,
             "2": self.CREATE_EVENT_SCREEN,
             "3": self.VIEW_ATTENDEES_SCREEN,
             "4": self.FILTER_EVENTS_SCREEN,
+            "5": self.OLD_EVENTS_SCREEN,
             "b": ScreenOptions.LOGIN_SCREEN,
             "q": ScreenOptions.QUIT,
         }
@@ -241,7 +244,7 @@ class UserUI:
                     is_valid = False
                     break
 
-                chosen_ids.append(str(eligible_users[selected_index - 1].uuid))
+                chosen_ids.append(str(eligible_users[selected_index - 1].name))
 
             if is_valid:
                 return list(dict.fromkeys(chosen_ids))
@@ -290,7 +293,9 @@ class UserUI:
             self._utilityUI.pause()
             return self.HOME_SCREEN
 
-        if self.CAN_JOIN_EVENTS and any(self._is_joinable_event(event) for event in visible_events):
+        if self.CAN_JOIN_EVENTS and any(
+            self._is_joinable_event(event) for event in visible_events
+        ):
             self._utilityUI.show_box(
                 "",
                 "1. Join Event",
@@ -422,7 +427,8 @@ class UserUI:
             filtered_events = [
                 event
                 for event in filtered_events
-                if time_tag in [str(tag).lower() for tag in getattr(event, "time_tags", [])]
+                if time_tag
+                in [str(tag).lower() for tag in getattr(event, "time_tags", [])]
             ]
 
         if branch_filter is not None:
@@ -436,3 +442,10 @@ class UserUI:
         self._print_events(filtered_events, "Filtered Events")
         self._utilityUI.pause()
         return self.HOME_SCREEN
+
+    def see_old_events(self) -> ScreenOptions:
+        event_list: list[str] = LogicLayerAPI.view_old_events(self._get_current_actor())
+
+        print(event_list)
+        input("Continue")
+        return ScreenOptions.USER_HOME
