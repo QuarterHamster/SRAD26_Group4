@@ -13,7 +13,7 @@ class AdminLogic():
         if decision:
             event.status = Event_status.ACTIVE
             return "Event has been approved"
-        
-        # If the decision is False
-        else: return "Event has been declined"
+
+        event.status = Event_status.REJECTED
+        return "Event has been declined"
 

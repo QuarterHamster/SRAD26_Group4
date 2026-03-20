@@ -17,25 +17,43 @@ class UserUI:
     CREATE_EVENT_SCREEN = ScreenOptions.USER_CREATE_EVENT
     VIEW_ATTENDEES_SCREEN = ScreenOptions.USER_VIEW_ATTENDEES
     FILTER_EVENTS_SCREEN = ScreenOptions.USER_FILTER_EVENTS
+    CAN_JOIN_EVENTS = True
+    CAN_CREATE_PRIVATE_EVENTS = True
+    CAN_VIEW_PRIVATE_ATTENDEES = False
 
     def __init__(self) -> None:
         self._utilityUI = UtilityUI()
         self.SCALE = self._utilityUI.SCALE
+        self.current_actor: Any | None = None
+
+    def set_current_actor(self, actor: Any | None) -> None:
+        self.current_actor = actor
+
+    def clear_current_actor(self) -> None:
+        self.current_actor = None
+
+    def _get_current_actor(self) -> Any:
+        if self.current_actor is None:
+            raise RuntimeError("No active user is selected")
+
+        return self.current_actor
+
+    def _get_current_actor_id(self) -> str:
+        return str(self._get_current_actor().uuid)
+
+    def _get_current_actor_name(self) -> str:
+        return str(self._get_current_actor().name)
 
     def home_screen(self) -> ScreenOptions:
-        """
-        Renders the user home screen and returns the next screen.
-
-        :return: Next screen to navigate to.
-        :rtype: ScreenOptions
-        """
+        actor = self._get_current_actor()
         self._utilityUI.show_box(
             "",
             f"{self.ROLE_TITLE} Menu",
+            f"Logged in as: {actor.name}",
             "1. See Events",
             "2. Create Event",
             "3. View Attendees For Event",
-            "4. Filter Events By Time Tag",
+            "4. Filter Events",
             "b. Log Out",
             "q. Quit",
             "",
@@ -52,42 +70,26 @@ class UserUI:
         }
         return screen_map[response]
 
-    def _prompt_user_id(self) -> str:
-        """
-        Prompts for a campus user id.
-
-        :return: Entered user id.
-        :rtype: str
-        """
-        return input("Enter your user id: ").strip()
-
-    def _parse_event_datetime(self, raw_value: str) -> Any:
-        """
-        Parses a user-provided event date when possible.
-
-        Falls back to the raw string if parsing fails so the UI stays
-        compatible with older logic-layer signatures.
-
-        :param raw_value: User-entered date value.
-        :type raw_value: str
-        :return: Parsed datetime or original string.
-        :rtype: Any
-        """
+    def _parse_event_datetime(self, raw_value: str) -> datetime | None:
         cleaned_value = raw_value.strip()
         for fmt in ["%Y-%m-%d %H:%M", "%Y-%m-%d"]:
             try:
                 return datetime.strptime(cleaned_value, fmt)
             except ValueError:
                 continue
-        return cleaned_value
+
+        return None
+
+    def _prompt_event_datetime(self) -> datetime:
+        while True:
+            raw_value = input("Event Date (YYYY-MM-DD HH:MM): ").strip()
+            parsed_value = self._parse_event_datetime(raw_value)
+            if parsed_value is not None:
+                return parsed_value
+
+            print("Invalid date format. Use YYYY-MM-DD HH:MM or YYYY-MM-DD.")
 
     def _prompt_sort_choice(self) -> str:
-        """
-        Prompts for the event sorting method.
-
-        :return: Sort key.
-        :rtype: str
-        """
         print("Sort events by:")
         print("1. Date")
         print("2. Name")
@@ -97,30 +99,42 @@ class UserUI:
         sort_map = {"1": "date", "2": "name", "3": "branch"}
         return sort_map[response]
 
-    def _get_visible_events(self, user_id: str) -> list:
-        """
-        Returns all events visible to the given user.
+    def _prompt_branch_choice(self, allow_all: bool = False) -> str:
+        print("Choose a branch:")
+        branch_map = {}
+        for index, branch in enumerate(Branch_type, start=1):
+            print(f"{index}. {branch.value}")
+            branch_map[str(index)] = branch.value
 
-        :param user_id: Campus user id.
-        :type user_id: str
-        :return: Visible events.
-        :rtype: list
-        """
+        valid_options = list(branch_map.keys())
+        if allow_all:
+            print("a. All branches")
+            valid_options.append("a")
+
+        response = self._utilityUI.user_input(valid_options)
+        if response == "a":
+            return "all"
+
+        return branch_map[response]
+
+    def _normalize_status(self, status: Any) -> str:
+        return str(getattr(status, "value", status)).strip().lower()
+
+    def _format_status(self, status: Any) -> str:
+        raw_status = str(getattr(status, "value", status)).strip()
+        return raw_status.title()
+
+    def _get_visible_events(self, user_id: str | None = None) -> list:
+        if user_id is None:
+            user_id = self._get_current_actor_id()
+
         return LogicLayerAPI.event_logic.get_visible_events(events, user_id)
 
-    def _get_sorted_visible_events(self, user_id: str, sort_key: str) -> list:
-        """
-        Returns visible events sorted by the requested key.
+    def _get_sorted_visible_events(self, user_id: str | None, sort_key: str) -> list:
+        if user_id is None:
+            user_id = self._get_current_actor_id()
 
-        :param user_id: Campus user id.
-        :type user_id: str
-        :param sort_key: Sort field.
-        :type sort_key: str
-        :return: Visible sorted events.
-        :rtype: list
-        """
         event_logic = LogicLayerAPI.event_logic
-
         if hasattr(event_logic, "sort_visible_events"):
             return event_logic.sort_visible_events(events, user_id, sort_key)
 
@@ -133,20 +147,10 @@ class UserUI:
         return sorted(visible_events, key=sort_functions[sort_key])
 
     def _print_events(self, event_list: list, title: str) -> None:
-        """
-        Prints a short overview of events.
-
-        :param event_list: Events to print.
-        :type event_list: list
-        :param title: Box title.
-        :type title: str
-        :return: None
-        :rtype: None
-        """
         self._utilityUI.show_box("", title, "")
 
         if len(event_list) == 0:
-            print("No visible events.")
+            print("No events found.")
             return
 
         for index, event in enumerate(event_list, start=1):
@@ -154,6 +158,7 @@ class UserUI:
             tags_text = ", ".join(str(tag) for tag in getattr(event, "time_tags", []))
             event_date = getattr(event, "date_time", "")
             branch_type = getattr(event, "branch_type", "")
+            status_text = self._format_status(getattr(event, "status", ""))
 
             if isinstance(event_date, datetime):
                 event_date_text = event_date.strftime("%Y-%m-%d %H:%M")
@@ -161,22 +166,12 @@ class UserUI:
                 event_date_text = str(event_date)
 
             print(
-                f"{index}. {event.event_name} [{privacy}] | {event_date_text} | "
-                f"{branch_type} | Time tags: {tags_text}"
+                f"{index}. {event.event_name} [{privacy}] | {status_text} | "
+                f"{event_date_text} | {branch_type} | Time tags: {tags_text}"
             )
 
-    def _choose_visible_event(self, user_id: str, sort_key: str = "date"):
-        """
-        Lets the user pick one visible event.
-
-        :param user_id: Campus user id.
-        :type user_id: str
-        :param sort_key: Sort field used when listing events.
-        :type sort_key: str
-        :return: Selected event or None.
-        :rtype: object | None
-        """
-        visible_events = self._get_sorted_visible_events(user_id, sort_key)
+    def _choose_visible_event(self, sort_key: str = "date"):
+        visible_events = self._get_sorted_visible_events(None, sort_key)
         self._print_events(visible_events, "Events")
 
         if len(visible_events) == 0:
@@ -185,7 +180,6 @@ class UserUI:
         print("b. Back")
         valid_options = [str(i) for i in range(1, len(visible_events) + 1)] + ["b"]
         selection = self._utilityUI.user_input(valid_options)
-
         if selection == "b":
             return None
 
@@ -196,127 +190,116 @@ class UserUI:
         event_name: str,
         event_description: str,
         event_tags: list[str],
-        date_time: Any,
+        branch_type: str,
+        date_time: datetime,
         event_location: str,
-        visibility: bool,
+        is_private: bool,
         creator_id: Any,
         status: Event_status = Event_status.PENDING,
     ):
-        """
-        Creates an event using the available logic-layer signature.
+        return LogicLayerAPI.create_event(
+            event_name,
+            event_description,
+            event_tags,
+            branch_type,
+            date_time,
+            event_location,
+            is_private,
+            creator_id,
+            status,
+        )
 
-        :param event_name: Name of the event.
-        :type event_name: str
-        :param event_description: Description of the event.
-        :type event_description: str
-        :param event_tags: Event tags.
-        :type event_tags: list[str]
-        :param date_time: Event date value.
-        :type date_time: Any
-        :param event_location: Event location.
-        :type event_location: str
-        :param visibility: Whether event is public.
-        :type visibility: bool
-        :param creator_id: Creating user or sponsor id.
-        :type creator_id: Any
-        :param status: New event status.
-        :type status: Event_status
-        :return: Created event object.
-        :rtype: object
-        """
-        creation_attempts = [
-            (
-                event_name,
-                event_description,
-                event_tags,
-                Branch_type.REYKJAVÍK.value,
-                date_time,
-                event_location,
-                visibility,
-                status,
-                creator_id,
-            ),
-            (
-                event_name,
-                event_description,
-                event_tags,
-                Branch_type.REYKJAVÍK.value,
-                date_time,
-                event_location,
-                visibility,
-                creator_id,
-                self.ROLE_TITLE,
-            ),
-            (
-                event_name,
-                event_description,
-                event_tags,
-                Branch_type.REYKJAVÍK.value,
-                date_time,
-                event_location,
-                visibility,
-                creator_id,
-            ),
+    def _prompt_invited_users(self) -> list[str]:
+        current_user_id = self._get_current_actor_id()
+        eligible_users = [
+            user for user in campus_users if str(user.uuid) != current_user_id
         ]
 
-        last_error = None
-        for attempt in creation_attempts:
-            try:
-                return LogicLayerAPI.create_event(*attempt)
-            except TypeError as error:
-                last_error = error
+        if len(eligible_users) == 0:
+            return []
 
-        if last_error is not None:
-            raise last_error
+        print("Invite users to this private event:")
+        for index, user in enumerate(eligible_users, start=1):
+            print(f"{index}. {user.name} [{user.user_type.value}]")
+        print("Press Enter to skip inviting anyone right now.")
 
-        raise RuntimeError("Unable to create event")
+        while True:
+            raw_selection = input("Invite user numbers (comma separated): ").strip()
+            if raw_selection == "":
+                return []
 
-    def _send_event_details_placeholder(self, visible_events: list) -> None:
-        """
-        Placeholder flow for sending event details to a friend.
+            chosen_ids = []
+            is_valid = True
+            for item in raw_selection.split(","):
+                normalized_item = item.strip()
+                if not normalized_item.isdigit():
+                    is_valid = False
+                    break
 
-        :param visible_events: Currently listed visible events.
-        :type visible_events: list
-        :return: None
-        :rtype: None
-        """
-        if len(visible_events) == 0:
-            self._utilityUI.pause()
+                selected_index = int(normalized_item)
+                if not 1 <= selected_index <= len(eligible_users):
+                    is_valid = False
+                    break
+
+                chosen_ids.append(str(eligible_users[selected_index - 1].uuid))
+
+            if is_valid:
+                return list(dict.fromkeys(chosen_ids))
+
+            print("Enter valid numbers separated by commas, or press Enter to skip.")
+
+    def _is_joinable_event(self, event) -> bool:
+        return LogicLayerAPI.event_logic.is_event_active(event)
+
+    def _join_event_flow(self, visible_events: list) -> None:
+        joinable_events = [
+            event for event in visible_events if self._is_joinable_event(event)
+        ]
+
+        if len(joinable_events) == 0:
+            print("There are no joinable events right now.")
             return
 
-        valid_event_numbers = [str(i) for i in range(1, len(visible_events) + 1)]
-        selected_event_number = self._utilityUI.user_input(
-            valid_event_numbers,
-            prompt="Select the event number: ",
-        )
-        friend_user_id = input("Enter user id of the friend: ").strip()
+        print("Choose an event to join:")
+        for index, event in enumerate(joinable_events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
 
-        _ = visible_events[int(selected_event_number) - 1]
-        _ = friend_user_id
-        print("Event sent")
+        valid_options = [str(i) for i in range(1, len(joinable_events) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
+        if selection == "b":
+            return
+
+        chosen_event = joinable_events[int(selection) - 1]
+        joined = LogicLayerAPI.event_logic.join_event(
+            chosen_event,
+            self._get_current_actor_name(),
+        )
+
+        if joined:
+            print(f"You are now attending {chosen_event.event_name}.")
+        else:
+            print(f"You are already attending {chosen_event.event_name}.")
 
     def see_events_screen(self) -> ScreenOptions:
-        """
-        Shows visible events for the chosen user.
-
-        :return: Next screen to navigate to.
-        :rtype: ScreenOptions
-        """
-        user_id = self._prompt_user_id()
         sort_key = self._prompt_sort_choice()
-        visible_events = self._get_sorted_visible_events(user_id, sort_key)
+        visible_events = self._get_sorted_visible_events(None, sort_key)
         self._print_events(visible_events, "Events")
 
-        if len(visible_events) > 0:
+        if len(visible_events) == 0:
+            self._utilityUI.pause()
+            return self.HOME_SCREEN
+
+        if self.CAN_JOIN_EVENTS and any(self._is_joinable_event(event) for event in visible_events):
             self._utilityUI.show_box(
                 "",
-                "1. Send event details to friend",
+                "1. Join Event",
                 "b. Go back to home screen",
                 "",
             )
             response = self._utilityUI.user_input(["1", "b"])
             if response == "1":
-                self._send_event_details_placeholder(visible_events)
+                self._join_event_flow(visible_events)
         else:
             self._utilityUI.pause()
             return self.HOME_SCREEN
@@ -324,55 +307,67 @@ class UserUI:
         self._utilityUI.pause()
         return self.HOME_SCREEN
 
-    def create_event_screen(self) -> ScreenOptions:
-        """
-        Creates a new event.
-
-        :return: Next screen to navigate to.
-        :rtype: ScreenOptions
-        """
+    def _run_create_event_screen(
+        self,
+        *,
+        status: Event_status = Event_status.PENDING,
+        is_private_default: bool = False,
+        allow_private: bool = True,
+    ) -> ScreenOptions:
         event_name = input("Event Name: ").strip()
         event_description = input("Event Description: ").strip()
         tags_input = input("Event Tags (comma separated): ").strip()
-        raw_date_time = input("Event Date (YYYY-MM-DD HH:MM): ").strip()
+        branch_type = self._prompt_branch_choice()
+        event_date = self._prompt_event_datetime()
         event_location = input("Event Location: ").strip()
 
-        print("Should the event be private? Y/N")
-        is_private = self._utilityUI.user_input(["y", "n"])
-        visibility = is_private == "n"
+        is_private = is_private_default
+        invited_user_ids: list[str] = []
+        if allow_private:
+            print("Should the event be private? Y/N")
+            is_private = self._utilityUI.user_input(["y", "n"]) == "y"
+            if is_private:
+                invited_user_ids = self._prompt_invited_users()
 
         event_tags = [tag.strip() for tag in tags_input.split(",") if tag.strip() != ""]
-        event_date = self._parse_event_datetime(raw_date_time)
         new_event = self._create_event_through_logic(
             event_name,
             event_description,
             event_tags,
+            branch_type,
             event_date,
             event_location,
-            visibility,
-            1,
+            is_private,
+            self._get_current_actor_id(),
+            status,
         )
+
+        for invited_user_id in invited_user_ids:
+            LogicLayerAPI.event_logic.invite_user(new_event, invited_user_id)
+
         events.append(new_event)
 
         print("\nEvent created successfully:\n")
         print(new_event)
+        if is_private and len(invited_user_ids) > 0:
+            print(f"Invited {len(invited_user_ids)} user(s) to this private event.")
+
         self._utilityUI.pause()
         return self.HOME_SCREEN
 
+    def create_event_screen(self) -> ScreenOptions:
+        return self._run_create_event_screen()
+
     def view_attendees_screen(self) -> ScreenOptions:
-        """
-        Shows attendees for a selected event.
-
-        :return: Next screen to navigate to.
-        :rtype: ScreenOptions
-        """
-        user_id = self._prompt_user_id()
-        chosen_event = self._choose_visible_event(user_id)
-
+        chosen_event = self._choose_visible_event()
         if chosen_event is None:
             return self.HOME_SCREEN
 
-        if chosen_event.is_private:
+        if (
+            chosen_event.is_private
+            and not self.CAN_VIEW_PRIVATE_ATTENDEES
+            and str(chosen_event.creator) != self._get_current_actor_id()
+        ):
             self._utilityUI.show_box(
                 "",
                 "This event is private. Attendees are hidden.",
@@ -400,28 +395,44 @@ class UserUI:
         return self.HOME_SCREEN
 
     def filter_events_screen(self) -> ScreenOptions:
-        """
-        Filters visible events by a time tag.
+        visible_events = self._get_visible_events()
 
-        :return: Next screen to navigate to.
-        :rtype: ScreenOptions
-        """
-        user_id = self._prompt_user_id()
-        time_tag = (
-            input(
-                "Enter a time tag (morning/afternoon/evening/night/weekday/weekend/month): "
+        print("Filter events by:")
+        print("1. Time tag")
+        print("2. Branch")
+        print("3. Time tag and branch")
+        response = self._utilityUI.user_input(["1", "2", "3"])
+
+        time_tag = None
+        branch_filter = None
+        if response in ["1", "3"]:
+            time_tag = (
+                input(
+                    "Enter a time tag (morning/afternoon/evening/night/weekday/weekend/month): "
+                )
+                .strip()
+                .lower()
             )
-            .strip()
-            .lower()
-        )
 
-        visible_events = self._get_visible_events(user_id)
-        filtered_events = [
-            event
-            for event in visible_events
-            if time_tag in [str(tag).lower() for tag in getattr(event, "time_tags", [])]
-        ]
+        if response in ["2", "3"]:
+            branch_filter = self._prompt_branch_choice()
 
-        self._print_events(filtered_events, f"Events with tag: {time_tag}")
+        filtered_events = visible_events
+        if time_tag is not None:
+            filtered_events = [
+                event
+                for event in filtered_events
+                if time_tag in [str(tag).lower() for tag in getattr(event, "time_tags", [])]
+            ]
+
+        if branch_filter is not None:
+            filtered_events = [
+                event
+                for event in filtered_events
+                if str(getattr(event, "branch_type", "")).strip().lower()
+                == branch_filter.lower()
+            ]
+
+        self._print_events(filtered_events, "Filtered Events")
         self._utilityUI.pause()
         return self.HOME_SCREEN

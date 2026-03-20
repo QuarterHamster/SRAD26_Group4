@@ -1,94 +1,33 @@
-from Models.Campus_user import Campus_user
-from Models.Enums import School_type, Event_tags, Branch_type, Event_status
-from Models.Event import Event
-from Models.Sponsor import Sponsor
 from datetime import datetime
 
+from Models.Campus_user import Campus_user
+from Models.Enums import Branch_type, Event_status, School_type
+from Models.Event import Event
+from Models.Sponsor import Sponsor
 
-sponsors: list[Sponsor] = [
-    Sponsor("1", "TechCorp Iceland", "contact@techcorp.is", "active", "TechCorp Iceland"),
-    Sponsor("2", "Nordic Startup Fund", "info@nordicfund.is", "active", "Nordic Startup Fund"),
-    Sponsor("3", "Reykjavík Sports Club", "hello@rsc.is", "active", "Reykjavík Sports Club"),
-]
+
+REYKJAVIK_BRANCH = next(
+    branch.value for branch in Branch_type if "reyk" in branch.value.lower()
+)
+AKUREYRI_BRANCH = Branch_type.AKUREYRI.value
+
 
 campus_users: list[Campus_user] = [
-    Campus_user(
-        1, "Anna Jónsdóttir", "anna1@campus.is", "active", School_type.STUDENT
-    ),
-    Campus_user(
-        2,
-        "Bjarni Sigurðsson",
-        "bjarni2@campus.is",
-        "active",
-        School_type.STUDENT,
-    ),
-    Campus_user(
-        3,
-        "Elín Guðmundsdóttir",
-        "elin3@campus.is",
-        "active",
-        School_type.STUDENT,
-    ),
-    Campus_user(
-        4, "Kári Stefánsson", "kari4@campus.is", "active", School_type.STUDENT
-    ),
-    Campus_user(
-        5, "Sara Magnúsdóttir", "sara5@campus.is", "active", School_type.STUDENT
-    ),
-    Campus_user(
-        6, "Jón Þórsson", "jon6@campus.is", "active", School_type.STAFF
-    ),
-    Campus_user(
-        7,
-        "Helga Kristinsdóttir",
-        "helga7@campus.is",
-        "active",
-        School_type.STAFF,
-    ),
-    Campus_user(
-        8, "Arnar Pétursson", "arnar8@campus.is", "active", School_type.STAFF
-    ),
-    Campus_user(
-        9,
-        "Kristín Ólafsdóttir",
-        "kristin9@campus.is",
-        "active",
-        School_type.STAFF,
-    ),
-    Campus_user(
-        10, "Davíð Einarsson", "david10@campus.is", "active", School_type.STAFF
-    ),
-    Campus_user(
-        11,
-        "Ragnar Björnsson",
-        "ragnar11@campus.is",
-        "active",
-        School_type.STUDENT,
-    ),
-    Campus_user(
-        12,
-        "Lilja Sigfúsdóttir",
-        "lilja12@campus.is",
-        "active",
-        School_type.STUDENT,
-    ),
-    Campus_user(
-        13,
-        "Stefán Gíslason",
-        "stefan13@campus.is",
-        "active",
-        School_type.STUDENT,
-    ),
-    Campus_user(
-        14, "María Björk", "maria14@campus.is", "active", School_type.STUDENT
-    ),
-    Campus_user(
-        15,
-        "Óskar Þórðarson",
-        "oskar15@campus.is",
-        "active",
-        School_type.STUDENT,
-    ),
+    Campus_user(1, "Anna Jonsdottir", "anna1@campus.is", "active", School_type.STUDENT),
+    Campus_user(2, "Bjarni Sigurdsson", "bjarni2@campus.is", "active", School_type.STUDENT),
+    Campus_user(3, "Elin Gudmundsdottir", "elin3@campus.is", "active", School_type.STUDENT),
+    Campus_user(4, "Kari Stefansson", "kari4@campus.is", "active", School_type.STUDENT),
+    Campus_user(5, "Sara Magnusdottir", "sara5@campus.is", "active", School_type.STUDENT),
+    Campus_user(6, "Jon THorsson", "jon6@campus.is", "active", School_type.STAFF),
+    Campus_user(7, "Helga Kristinsdottir", "helga7@campus.is", "active", School_type.STAFF),
+    Campus_user(8, "Arnar Petursson", "arnar8@campus.is", "active", School_type.STAFF),
+    Campus_user(9, "Kristin Olafsdottir", "kristin9@campus.is", "active", School_type.STAFF),
+    Campus_user(10, "David Einarsson", "david10@campus.is", "active", School_type.STAFF),
+    Campus_user(11, "Ragnar Bjornsson", "ragnar11@campus.is", "active", School_type.STUDENT),
+    Campus_user(12, "Lilja Sigfusdottir", "lilja12@campus.is", "active", School_type.STUDENT),
+    Campus_user(13, "Stefan Gislason", "stefan13@campus.is", "active", School_type.STUDENT),
+    Campus_user(14, "Maria Bjork", "maria14@campus.is", "active", School_type.STUDENT),
+    Campus_user(15, "Oskar THordarson", "oskar15@campus.is", "active", School_type.STUDENT),
 ]
 
 events: list[Event] = [
@@ -97,7 +36,7 @@ events: list[Event] = [
         "Campus Coding Night",
         "Students meet to work on coding projects together.",
         ["coding", "tech", "collaboration"],
-        "Engineering",
+        REYKJAVIK_BRANCH,
         datetime(2026, 3, 10, 18, 0),
         "Room E301",
         False,
@@ -109,7 +48,7 @@ events: list[Event] = [
         "Photography Walk",
         "Campus photo walk for students interested in photography.",
         ["photography", "creative", "outdoors"],
-        "Arts",
+        AKUREYRI_BRANCH,
         datetime(2026, 3, 12, 16, 30),
         "Campus Main Entrance",
         False,
@@ -121,7 +60,7 @@ events: list[Event] = [
         "Startup Meetup",
         "Discussion about student startups and entrepreneurship.",
         ["business", "startup", "networking"],
-        "Business",
+        REYKJAVIK_BRANCH,
         datetime(2026, 3, 15, 17, 0),
         "Innovation Hub",
         False,
@@ -133,7 +72,7 @@ events: list[Event] = [
         "Staff Strategy Meeting",
         "Internal planning meeting for upcoming campus events.",
         ["staff", "planning"],
-        "Administration",
+        AKUREYRI_BRANCH,
         datetime(2026, 3, 11, 9, 0),
         "Admin Building Room 2",
         True,
@@ -145,7 +84,7 @@ events: list[Event] = [
         "Training Session",
         "Open fitness training for students interested in movement.",
         ["sport", "fitness"],
-        "Sports",
+        REYKJAVIK_BRANCH,
         datetime(2026, 3, 14, 19, 0),
         "Campus Gym Hall",
         False,
@@ -154,7 +93,7 @@ events: list[Event] = [
     ),
 ]
 
-sponsors = [
+sponsors: list[Sponsor] = [
     Sponsor("1", "NovaTech", "contact@novatech.is", "active", "NovaTech"),
     Sponsor("2", "Arctic Systems", "info@arcticsystems.is", "active", "Arctic Systems"),
     Sponsor("3", "BlueWave Energy", "hello@bluewave.is", "active", "BlueWave Energy"),

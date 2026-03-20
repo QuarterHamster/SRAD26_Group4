@@ -1,291 +1,164 @@
-from Models.Campus_user import Campus_user
-from Models.Enums import School_type, Event_tags, Branch_type, Event_status
-from Models.Event import Event
-from datetime import datetime
-from Models.Sponsor import Sponsor
-from UILayer.Place_holder_data import events, campus_users, sponsors
+from types import SimpleNamespace
+
 from UILayer.AdminUI import AdminUI
-from LogicLayer import LogicLayerAPI
+from UILayer.Place_holder_data import campus_users, events, sponsors
 from UILayer.ScreenOptions import ScreenOptions
+from UILayer.SponsorUI import SponsorUI
+from UILayer.UserUI import UserUI
+from UILayer.UtilityUI import UtilityUI
 
 
 class MainUI:
-    def __init__(self):
+    """Coordinates screen routing across the UI layer."""
+
+    def __init__(self) -> None:
+        self._utilityUI = UtilityUI()
         self._adminUI = AdminUI()
+        self._userUI = UserUI()
+        self._sponsorUI = SponsorUI()
+        self._adminUI.set_current_actor(
+            SimpleNamespace(uuid="admin", name="Administrator")
+        )
+        self.current_screen: ScreenOptions = ScreenOptions.LOGIN_SCREEN
 
-    def run(self):
-        SCALE: int = 80
+        self._seed_demo_event_state()
 
-        def border(scale: int = SCALE) -> str:
-            return f"{('-' * SCALE)[:scale]}"
+        self.screens = {
+            ScreenOptions.LOGIN_SCREEN: self.login_screen,
+            ScreenOptions.ADMIN_HOME: self._adminUI.home_screen,
+            ScreenOptions.ADMIN_SEE_EVENTS: self._adminUI.see_events_screen,
+            ScreenOptions.ADMIN_CREATE_EVENT: self._adminUI.create_event_screen,
+            ScreenOptions.ADMIN_ACCEPT_REJECT_EVENT: self._adminUI.accept_reject_event,
+            ScreenOptions.ADMIN_VIEW_ATTENDEES: self._adminUI.view_attendees_screen,
+            ScreenOptions.ADMIN_FILTER_EVENTS: self._adminUI.filter_events_screen,
+            ScreenOptions.ADMIN_MANAGE_SPONSORS: self._adminUI.manage_sponsors_screen,
+            ScreenOptions.USER_HOME: self._userUI.home_screen,
+            ScreenOptions.USER_SEE_EVENTS: self._userUI.see_events_screen,
+            ScreenOptions.USER_CREATE_EVENT: self._userUI.create_event_screen,
+            ScreenOptions.USER_VIEW_ATTENDEES: self._userUI.view_attendees_screen,
+            ScreenOptions.USER_FILTER_EVENTS: self._userUI.filter_events_screen,
+            ScreenOptions.SPONSOR_HOME: self._sponsorUI.home_screen,
+            ScreenOptions.SPONSOR_SEE_EVENTS: self._sponsorUI.see_events_screen,
+            ScreenOptions.SPONSOR_CREATE_EVENT: self._sponsorUI.create_event_screen,
+            ScreenOptions.SPONSOR_VIEW_ATTENDEES: self._sponsorUI.view_attendees_screen,
+            ScreenOptions.SPONSOR_FILTER_EVENTS: self._sponsorUI.filter_events_screen,
+        }
 
-        def walls(scale: int = SCALE, text: str = "") -> str:
-            if scale <= 0:
-                return ""
-            if scale == 1:
-                return "|"
+    def _seed_demo_event_state(self) -> None:
+        attendee_map = {
+            0: [0, 1, 5],
+            1: [2, 3],
+            2: [4, 6, 7],
+            4: [10],
+        }
 
-            inner_width = scale - 2
-            text = text[:inner_width]
+        for event_index, user_indexes in attendee_map.items():
+            if event_index >= len(events):
+                continue
 
-            padding_left = (inner_width - len(text)) // 2
-            padding_right = inner_width - len(text) - padding_left
+            attendees = []
+            for user_index in user_indexes:
+                if user_index < len(campus_users):
+                    attendees.append(campus_users[user_index].name)
+            events[event_index].attendees = attendees
 
-            return "|" + " " * padding_left + text + " " * padding_right + "|"
+        if len(events) > 3:
+            events[3].invite_user(6)
+            events[3].invite_user(7)
 
-        def user_input(valid: list[str]):
-            while True:
-                response: str = input(">> ").strip().lower()
-                if response in valid:
-                    return response
+    def login_screen(self) -> ScreenOptions:
+        self._utilityUI.show_box(
+            "",
+            "Login",
+            "1. Login as Admin",
+            "2. Login as User",
+            "3. Login as Sponsor",
+            "q. Quit",
+            "",
+        )
 
-                print("Not a valid option try again")
+        response = self._utilityUI.user_input(["1", "2", "3", "q"])
+        if response == "1":
+            return ScreenOptions.ADMIN_HOME
 
-        def create_event():
-            event_name: str = input("Event Name: ")
-            event_description: str = input("Event Description: ")
-            #event_tags: str = input("Event Tags: ")
-            # Branch type dropdown menu
-            date_time: str = input("Event Date: ")
-            event_location: str = input("Event Location: ")
-            visibility = True
-            while True:
-                is_private: str = input("Should the event be private? Y/N: ")
-                if is_private.lower() == "y":
-                    visibility = False
-                    break
-                elif is_private.lower() == "n":
-                    visibility = True
-                    break
-                else:
-                    print("Invalid Input")
-                    continue
-            # creator is id:1
-            new_event = LogicLayerAPI.create_event(event_name, event_description, [],Branch_type.REYKJAVÍK.value, date_time, event_location,visibility, 1)
-            events.append(new_event)
-            print(new_event)
+        if response == "2":
+            selected_user = self._select_campus_user()
+            if selected_user is None:
+                return ScreenOptions.LOGIN_SCREEN
 
-        def list_events_short():
-            # TODO: This will need to be changed later to Name where we fetch the id from the name
-            user_id = input("Enter your user id: ").strip()
-            print("Sort events by:")
-            print("1. Date")
-            print("2. Name")
-            print("3. Branch")
-            sort_choice = user_input(["1", "2", "3"])
-            sort_map = {"1": "date", "2": "name", "3": "branch"}
-            visible_events = LogicLayerAPI.event_logic.sort_visible_events(
-                events, user_id, sort_map[sort_choice]
-            )
+            self._userUI.set_current_actor(selected_user)
+            return ScreenOptions.USER_HOME
 
-            print(border(SCALE))
-            print(walls(SCALE, "Events"))
-            print(border(SCALE))
+        if response == "3":
+            selected_sponsor = self._select_sponsor()
+            if selected_sponsor is None:
+                return ScreenOptions.LOGIN_SCREEN
 
-            if len(visible_events) == 0:
-                print("No visible events.")
-                return
-            i = 0
+            self._sponsorUI.set_current_actor(selected_sponsor)
+            return ScreenOptions.SPONSOR_HOME
 
-            for e in visible_events:
-                privacy = "Private" if e.is_private else "Public"
-                tags_text = ", ".join(e.time_tags)
-                print(
-                    f"{e.event_name} [{privacy}] | {e.date_time:%Y-%m-%d %H:%M} | "
-                    f"{e.branch_type} | Time tags: {tags_text}"
-                )
-                i += 1
-                print(f"{i}. {e.event_name} [{privacy}] | Time tags: {tags_text}")
-            
-            print(border(SCALE))
-            print(walls(SCALE, "1. send Event details to friends"))
-            print(walls(SCALE, "b. Go back to home screen"))
-            print(border(SCALE))
+        return ScreenOptions.QUIT
 
-            response: str = user_input(["1", "b"])
-            if response == "1":
-                input("Select the event number")
-                input("enter user_id of the friend")
-                print("event sent")
-
-        def filter_events_by_time_tag():
-            user_id = input("Enter your user id: ").strip()
-            time_tag = (
-                input(
-                    "Enter a time tag (morning/afternoon/evening/night/weekday/weekend/month): "
-                )
-                .strip()
-                .lower()
-            )
-            visible_events = LogicLayerAPI.event_logic.get_visible_events(
-                events, user_id
-            )
-            filtered_events = [e for e in visible_events if time_tag in e.time_tags]
-
-            print(border(SCALE))
-            print(walls(SCALE, f"Events with tag: {time_tag}"))
-            print(border(SCALE))
-
-            if len(filtered_events) == 0:
-                print("No events found for that time tag.")
-                return
-
-            for e in filtered_events:
-                privacy = "Private" if e.is_private else "Public"
-                tags_text = ", ".join(e.time_tags)
-                print(f"{e.event_name} [{privacy}] | Time tags: {tags_text}")
-
-        def choose_event():
-            list_events_short()
-            while True:
-                picked = input("Enter event Name: ").strip()
-                for e in events:
-                    if str(e.event_name) == picked:
-                        return e
-                print("Event not found, try again.")
-
-        def post_event_as_sponsor():
-            print(border(SCALE))
-            print(walls(SCALE, "Sponsors"))
-            print(border(SCALE))
-            for s in sponsors:
-                print(f"  [{s.uuid}] {s.organization}")
-            print(border(SCALE))
-
-            sponsor_id = input("Enter your sponsor ID: ").strip()
-            sponsor = next((s for s in sponsors if s.uuid == sponsor_id), None)
-            if sponsor is None:
-                print("Sponsor not found.")
-                return
-
-            print(f"\nPosting event as: {sponsor.organization}")
-            event_name = input("Event Name: ").strip()
-            event_description = input("Event Description: ").strip()
-            date_str = input("Event Date (YYYY-MM-DD HH:MM): ").strip()
-            try:
-                event_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
-            except ValueError:
-                print("Invalid date format. Use YYYY-MM-DD HH:MM.")
-                return
-            event_location = input("Event Location: ").strip()
-
-            new_event = LogicLayerAPI.create_event(
-                event_name, event_description, [],
-                Branch_type.REYKJAVÍK.value, event_date,
-                event_location, False, sponsor.uuid
-            )
-            events.append(new_event)
-            print(border(SCALE))
-            print(walls(SCALE, "Event submitted for admin review!"))
-            print(border(SCALE))
-            print(new_event)
-
-        def show_attendees_for_event():
-            chosen = choose_event()
-
-            # Simple privacy rule: do not reveal attendees for private events
-            if chosen.is_private:
-                print(border(SCALE))
-                print(walls(SCALE, "This event is private. Attendees are hidden."))
-                print(border(SCALE))
-                input("\nPress Enter to continue...")
-                return
-
-            print(border(SCALE))
-            print(walls(SCALE, f"Attendees for: {chosen.event_name}"))
-            print(border(SCALE))
-
-            print(f"Total attendees: {len(chosen.attendees)}")
-
-            if len(chosen.attendees) == 0:
-                print("No attendees yet.")
-            else:
-                for a in chosen.attendees:
-                    print("- " + a)
-
-            input("\nPress Enter to continue...")
-
-        def activate_sponsors():
-            print(border(SCALE))
-            number_of_sponsor = []
-            number_of_sponsor.extend(sponsor_id + 1 for sponsor_id in range(len(sponsors)))
-            i = 0
-            for sponsor in sponsors:
-                i += 1
-                print(walls(SCALE, (f"{i} {sponsor.name} {sponsor.user_status}")))
-            print(border(SCALE))
-
-            select = int(input(walls(SCALE,"Select sponsor number: ")))
-            while select not in number_of_sponsor:
-                print(border(SCALE))
-                print(walls(SCALE, f"the selected number is not available"))
-                for sponsor in sponsors:
-                    print(walls(SCALE, (i, sponsor.name, sponsor.user_status)))
-                select = int(input(walls(SCALE, "Select sponsor number: ")))
-                print(border(SCALE))
-            activdeactiv = {"active": "inactive", "inactive": "active"}
-            x = sponsors[select].user_status = activdeactiv[sponsor.user_status]
-            if x == "inactive":
-                x = "deactive"
-            print(f"sponsor has been {x}ated")
-
-        user_list = campus_users
-        event_list = events
-
-        # --- Hardcoded attendees for User Story #14 ---
-        event_list[0].attendees = [
-            "Anna Jónsdóttir",
-            "Bjarni Sigurðsson",
-            "Jón Þórsson",
+    def _select_campus_user(self):
+        active_users = [
+            user
+            for user in campus_users
+            if str(getattr(user, "user_status", "")).lower() == "active"
         ]
-        event_list[1].attendees = ["Elín Guðmundsdóttir", "Kári Stefánsson"]
-        event_list[2].attendees = [
-            "Sara Magnúsdóttir",
-            "Helga Kristinsdóttir",
-            "Arnar Pétursson",
-        ]
-        # events[3] is private -> keep empty
-        events[4].attendees = ["Ragnar Björnsson"]
 
-        events[3].invite_user(6)
-        events[3].invite_user(7)
+        self._utilityUI.show_box(
+            "",
+            "Select User",
+            "",
+        )
+        for index, user in enumerate(active_users, start=1):
+            print(f"{index}. {user.name} [{user.user_type.value}]")
+        print("b. Back")
 
+        valid_options = [str(i) for i in range(1, len(active_users) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
+        if selection == "b":
+            return None
+
+        return active_users[int(selection) - 1]
+
+    def _select_sponsor(self):
+        self._utilityUI.show_box(
+            "",
+            "Select Sponsor",
+            "",
+        )
+        for index, sponsor in enumerate(sponsors, start=1):
+            print(f"{index}. {sponsor.organization} [{sponsor.user_status}]")
+        print("b. Back")
+
+        valid_options = [str(i) for i in range(1, len(sponsors) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
+        if selection == "b":
+            return None
+
+        sponsor = sponsors[int(selection) - 1]
+        if str(getattr(sponsor, "user_status", "inactive")).lower() != "active":
+            print("This sponsor does not currently have access to the system.")
+            self._utilityUI.pause()
+            return None
+
+        return sponsor
+
+    def screen_not_exist_error(self) -> ScreenOptions:
+        print("Screen does not exist.")
+        self._utilityUI.pause("Press Enter to go back to start: ")
+        return ScreenOptions.LOGIN_SCREEN
+
+    def run(self) -> None:
         while True:
-            print(border(SCALE))
-            print(walls(SCALE))
-            print(walls(SCALE, "1. See Events"))
-            print(walls(SCALE, "2. Create Event"))
-            print(walls(SCALE, "3. Accept/Reject Events As Admin"))
-            print(walls(SCALE, "4. View Attendees For Event"))
-            print(walls(SCALE, "5. Filter Events By Time Tag"))
-            print(walls(SCALE, "6. Grant Sponsor permissions"))
-            print(walls(SCALE, "7. Post event as sponsor"))
-            print(walls(SCALE, "q. Quit"))
-            print(walls(SCALE))
-
-            response: str = user_input(["1", "2", "3", "4", "5", "6", "7", "q"])
-            print(border())
-
-            if response == "1":
-                list_events_short()
-
-            if response == "2":
-                create_event()
-
-            if response == "3":
-                self._adminUI.accept_reject_event()
-
-            if response == "4":
-                show_attendees_for_event()
-
-            if response == "5":
-                filter_events_by_time_tag()
-            
-            if response == "6":
-                activate_sponsors()
-
-            if response == "7":
-                post_event_as_sponsor()
-
-            if response == "q":
+            if self.current_screen is ScreenOptions.QUIT:
+                print("Quitting program")
                 break
+
+            current_handler = self.screens.get(self.current_screen)
+            if current_handler is None:
+                self.current_screen = self.screen_not_exist_error()
+                continue
+
+            self.current_screen = current_handler()

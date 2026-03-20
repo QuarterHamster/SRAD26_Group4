@@ -22,6 +22,7 @@ class ScreenOptions(StrEnum):
     ADMIN_ACCEPT_REJECT_EVENT = "AdminAcceptRejectEvent"
     ADMIN_VIEW_ATTENDEES = "AdminViewAttendees"
     ADMIN_FILTER_EVENTS = "AdminFilterEvents"
+    ADMIN_MANAGE_SPONSORS = "AdminManageSponsors"
 
     USER_HOME = "UserHomeScreen"
     USER_SEE_EVENTS = "UserSeeEvents"

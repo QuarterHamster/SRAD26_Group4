@@ -61,6 +61,17 @@ class Event:
         if user_id not in self.invited_users:
             self.invited_users.append(user_id)
 
+    def add_attendee(self, attendee_name):
+        attendee_name = str(attendee_name).strip()
+        if attendee_name == "":
+            return False
+
+        if attendee_name not in self.attendees:
+            self.attendees.append(attendee_name)
+            return True
+
+        return False
+
     def can_be_viewed_by(self, user_id):
         if not self.is_private:
             return True
