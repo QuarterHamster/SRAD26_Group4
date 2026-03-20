@@ -1,14 +1,16 @@
 [run]
 source =
-    Project/Models/Event.py
-    Project/LogicLayer/EventLogic.py
+    Project/Models
+    Project/LogicLayer
 omit =
     */__init__.py
-    Project/UILayer/*
-    Project/main.py
-    Project/test.py
+    Project/LogicLayer/AdminLogic.py
+    Project/LogicLayer/LogicLayerAPI.py
 
 [report]
+include =
+    Project/Models/Event.py
+    Project/LogicLayer/EventLogic.py
 fail_under = 50
 show_missing = True
 skip_covered = True
