@@ -20,6 +20,7 @@ python Project/main.py
 ## Unit testing (Exercise 5.2)
 Test files are located in `tests/`.
 
+*Note: You can not pip install because it is already a standard module in python*  
 Run all unit tests:
 ```
 python -m unittest discover -s tests -p "test_*.py" -v
