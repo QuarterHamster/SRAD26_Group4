@@ -17,5 +17,6 @@ class Branch_type(Enum):
 class Event_status(Enum):
     PENDING = "Pending"
     ACTIVE = "Active"
+    REJECTED = "Rejected"
     ENDED = "Ended"
     

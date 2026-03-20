@@ -29,22 +29,46 @@ class EventLogic:
         :type creator: str
         :return:
         """
+        if not isinstance(date_time, datetime.datetime):
+            raise ValueError("date_time must be a datetime instance")
+
         uuid = str(uuid4())
-        new_event = Event(uuid, event_name, description, event_tags, branch_type, date_time, location, is_private, "proposed", creator)
+        normalized_status = getattr(status, "value", status)
+        new_event = Event(
+            uuid,
+            event_name,
+            description,
+            event_tags,
+            branch_type,
+            date_time,
+            location,
+            is_private,
+            normalized_status,
+            creator,
+        )
         self.events.append(new_event)
         DataLayerAPI.store_event(new_event)
         return new_event
 
-    def filter_events_by_time_tag(self, time_tag):
+    def _normalize_status(self, status):
+        return str(getattr(status, "value", status)).strip().lower()
+
+    def is_event_active(self, event):
+        return self._normalize_status(getattr(event, "status", "")) == "active"
+
+    def filter_events_by_time_tag(self, events, time_tag):
         normalized = str(time_tag).strip().lower()
-        return [event for event in self.events if normalized in event.time_tags]
+        return [event for event in events if normalized in getattr(event, "time_tags", [])]
 
     def invite_user(self, event, user_id):
         event.invite_user(user_id)
 
 
     def can_user_view_event(self, event, user_id):
-        return event.can_be_viewed_by(user_id)
+        if self.is_event_active(event):
+            return event.can_be_viewed_by(user_id)
+
+        return str(user_id) == str(getattr(event, "creator", ""))
 
 
     def get_visible_events(self, events, user_id):
@@ -52,7 +76,7 @@ class EventLogic:
         visible_events = []
 
         for event in events:
-            if event.can_be_viewed_by(user_id):
+            if self.can_user_view_event(event, user_id):
                 visible_events.append(event)
 
         return visible_events
@@ -68,6 +92,9 @@ class EventLogic:
 
         # Default sort is by event date/time.
         return sorted(visible_events, key=lambda event: event.date_time)
+
+    def join_event(self, event, attendee_name):
+        return event.add_attendee(attendee_name)
 
 # EventLogic = EventLogic()
 # test_time = datetime.datetime
