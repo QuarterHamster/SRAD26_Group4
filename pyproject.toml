@@ -1,0 +1,13 @@
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [
+  ".git",
+  "__pycache__",
+]
+
+[tool.ruff.lint]
+# Keep the first quality gate practical for your current codebase:
+# - E9: syntax/runtime parsing issues
+# - F63/F7/F82: high-signal undefined-name and similar errors
+select = ["E9", "F63", "F7", "F82"]
