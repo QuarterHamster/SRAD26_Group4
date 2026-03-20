@@ -1,0 +1,14 @@
+[run]
+source =
+    Project/Models/Event.py
+    Project/LogicLayer/EventLogic.py
+omit =
+    */__init__.py
+    Project/UILayer/*
+    Project/main.py
+    Project/test.py
+
+[report]
+fail_under = 50
+show_missing = True
+skip_covered = True

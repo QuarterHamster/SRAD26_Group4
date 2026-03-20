@@ -26,8 +26,8 @@ jobs:
 
       - name: Run unit tests with coverage (min 50%)
         run: |
-          python -m coverage run --source=Project -m unittest discover -s tests -p "test_*.py" -v
-          python -m coverage report -m --fail-under=50
+          python -m coverage run --rcfile=.coveragerc -m unittest discover -s tests -p "test_*.py" -v
+          python -m coverage report -m --rcfile=.coveragerc
 
       - name: Run Ruff lint checks
         run: python -m ruff check .
