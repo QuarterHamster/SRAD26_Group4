@@ -284,6 +284,36 @@ class UserUI:
         else:
             print(f"You are already attending {chosen_event.event_name}.")
 
+    def report_event(self, visible_events):
+        available_events = [
+            event for event in visible_events
+        ]
+
+        if len(available_events) == 0:
+            print("There are no joinable events right now.")
+            return
+
+        print("Choose an event to report:")
+        for index, event in enumerate(events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
+
+        valid_options = [str(i) for i in range(1, len(events) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
+        if selection == "b":
+            return
+        
+        report = input("describe your report:\n")
+        
+        chosen_event = events[int(selection) - 1]
+        reported = LogicLayerAPI.event_logic.report_event(
+            chosen_event,
+            report,
+            self._get_current_actor_name()
+        )
+        if reported:
+            print(f"You have reported {chosen_event.event_name}.")
+
     def see_events_screen(self) -> ScreenOptions:
         sort_key = self._prompt_sort_choice()
         visible_events = self._get_sorted_visible_events(None, sort_key)
@@ -299,12 +329,15 @@ class UserUI:
             self._utilityUI.show_box(
                 "",
                 "1. Join Event",
+                "2. Report Event",
                 "b. Go back to home screen",
                 "",
             )
-            response = self._utilityUI.user_input(["1", "b"])
+            response = self._utilityUI.user_input(["1", "2", "b"])
             if response == "1":
                 self._join_event_flow(visible_events)
+            elif response == "2":
+                self.report_event(visible_events)
         else:
             self._utilityUI.pause()
             return self.HOME_SCREEN

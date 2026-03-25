@@ -52,6 +52,7 @@ class Event:
         self.is_private = is_private
         self.status = status
         self.creator = creator
+        self.reports = []
         self.attendees = []
         self.invitees = []
         self.invited_users = []
@@ -74,6 +75,14 @@ class Event:
             return True
 
         return False
+    
+    def add_report(self, desc, reportee_name):
+        reportee_name = str(reportee_name).strip()
+        if reportee_name == "":
+            return False
+        
+        self.reports.append((desc, reportee_name))
+        return True
 
     def can_be_viewed_by(self, user_id):
         if not self.is_private:
