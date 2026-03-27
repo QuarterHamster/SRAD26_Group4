@@ -1,4 +1,9 @@
 from UILayer.MainUI import MainUI
 
 main = MainUI()
-main.run()
+
+
+
+
+if __name__ == "__main__":
+    main.run()

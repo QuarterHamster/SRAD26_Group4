@@ -18,6 +18,7 @@ class UserUI:
     VIEW_ATTENDEES_SCREEN = ScreenOptions.USER_VIEW_ATTENDEES
     FILTER_EVENTS_SCREEN = ScreenOptions.USER_FILTER_EVENTS
     OLD_EVENTS_SCREEN = ScreenOptions.OLD_EVENTS_SCREEN
+    FAVORITE_EVENTS_SCREEN = ScreenOptions.FAVORITE_EVENTS
     CAN_JOIN_EVENTS = True
     CAN_CREATE_PRIVATE_EVENTS = True
     CAN_VIEW_PRIVATE_ATTENDEES = False
@@ -56,18 +57,20 @@ class UserUI:
             "3. View Attendees For Event",
             "4. Filter Events",
             "5. View Old Events",
+            "6. View Favorite Events",
             "b. Log Out",
             "q. Quit",
             "",
         )
-
-        response = self._utilityUI.user_input(["1", "2", "3", "4", "5", "b", "q"])
+        # We should probably create a helper function that takes a dict and creates valid input
+        response = self._utilityUI.user_input(["1", "2", "3", "4", "5", "6", "b", "q"])
         screen_map = {
             "1": self.SEE_EVENTS_SCREEN,
             "2": self.CREATE_EVENT_SCREEN,
             "3": self.VIEW_ATTENDEES_SCREEN,
             "4": self.FILTER_EVENTS_SCREEN,
             "5": self.OLD_EVENTS_SCREEN,
+            "6": self.FAVORITE_EVENTS_SCREEN,
             "b": ScreenOptions.LOGIN_SCREEN,
             "q": ScreenOptions.QUIT,
         }
@@ -284,6 +287,46 @@ class UserUI:
         else:
             print(f"You are already attending {chosen_event.event_name}.")
 
+    def _favorite_event_flow(self, visible_events: list) -> None:
+        joinable_events = [
+            event for event in visible_events if self._is_joinable_event(event)
+        ]
+
+        if len(joinable_events) == 0:
+            print("There are no events right now.")
+            return
+
+        print("Choose an event to favorite:")
+        for index, event in enumerate(joinable_events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
+
+        valid_options = [str(i) for i in range(1, len(joinable_events) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
+        if selection == "b":
+            return
+
+        chosen_event = joinable_events[int(selection) - 1]
+        favorite = LogicLayerAPI.campus_user_logic.favorite_event(
+            self._get_current_actor(),
+            chosen_event.event_name,
+        )
+
+        if favorite:
+            print(f"{chosen_event.event_name} added to favorites.")
+        else:
+            # Option to unfavorite event
+            print(f"{chosen_event.event_name} already added to favorites.")
+            print(f"Do you want to unfavorite event? Y/N:")
+            response = self._utilityUI.user_input(["y", "n"])
+            if response == "y":
+                LogicLayerAPI.campus_user_logic.unfavorite_event(
+                    self._get_current_actor(),
+                    chosen_event.event_name,
+                )
+                print(f"{chosen_event.event_name} removed from favorites.")
+
+
     def see_events_screen(self) -> ScreenOptions:
         sort_key = self._prompt_sort_choice()
         visible_events = self._get_sorted_visible_events(None, sort_key)
@@ -299,12 +342,15 @@ class UserUI:
             self._utilityUI.show_box(
                 "",
                 "1. Join Event",
+                "2. Favorite Event",
                 "b. Go back to home screen",
                 "",
             )
-            response = self._utilityUI.user_input(["1", "b"])
+            response = self._utilityUI.user_input(["1", "2","b",])
             if response == "1":
                 self._join_event_flow(visible_events)
+            elif response == "2":
+                self._favorite_event_flow(visible_events)
         else:
             self._utilityUI.pause()
             return self.HOME_SCREEN
@@ -445,6 +491,13 @@ class UserUI:
 
     def see_old_events(self) -> ScreenOptions:
         event_list: list[str] = LogicLayerAPI.view_old_events(self._get_current_actor())
+
+        print(event_list)
+        input("Continue")
+        return ScreenOptions.USER_HOME
+
+    def see_favorite_events(self):
+        event_list: list[str] = LogicLayerAPI.view_favorite_events(self._get_current_actor())
 
         print(event_list)
         input("Continue")
