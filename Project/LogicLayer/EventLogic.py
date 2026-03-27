@@ -96,6 +96,7 @@ class EventLogic:
     def join_event(self, event, attendee_name):
         return event.add_attendee(attendee_name)
 
+
 # EventLogic = EventLogic()
 # test_time = datetime.datetime
 # a = EventLogic.create_event("Test Event", "This event is for testing project features", [],"Reykjvík", test_time, "Sindris house", False, "uuid")
