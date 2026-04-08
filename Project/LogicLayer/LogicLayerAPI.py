@@ -39,3 +39,12 @@ campus_user_logic = CampusUserLogic.CampusUserLogic()
 
 def view_old_events(user: Campus_user):
     return campus_user_logic.view_old_events(user)
+
+def view_favorite_events(user: Campus_user):
+    return campus_user_logic.view_favorite_events(user)
+
+def favorite_event(user: Campus_user, event: str):
+    return campus_user_logic.favorite_event(user, event)
+
+def unfavorite_event(user: Campus_user, event: str):
+    return campus_user_logic.unfavorite_event(user, event)
