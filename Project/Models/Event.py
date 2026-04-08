@@ -54,6 +54,7 @@ class Event:
         self.creator = creator
         self.reports = []
         self.attendees = []
+        self.reports = []
         self.invitees = []
         self.invited_users = []
 
@@ -83,6 +84,18 @@ class Event:
             return False
         
         self.reports.append((desc, reportee_name))
+        return True
+
+    def add_report(self, report_reason, reportee_name):
+        report_reason = str(report_reason).strip()
+        reportee_name = str(reportee_name).strip()
+
+        if report_reason == "" or reportee_name == "":
+            return False
+
+        self.reports.append(
+            {"reason": report_reason, "reportee_name": reportee_name}
+        )
         return True
 
     def can_be_viewed_by(self, user_id):
