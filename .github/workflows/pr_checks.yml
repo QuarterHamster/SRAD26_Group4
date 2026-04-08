@@ -1,4 +1,4 @@
-name: PR Checks
+﻿name: PR Checks
 
 on:
   pull_request:
@@ -24,10 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ruff coverage
 
-      - name: Run unit tests with coverage (min 50%)
+      - name: Run unit tests with coverage (min 80%)
         run: |
-          python -m coverage run --rcfile=.coveragerc -m unittest discover -s tests -p "test_*.py" -v
-          python -m coverage report -m --rcfile=.coveragerc
+          python -m coverage run --rcfile=.coveragerc -m unittest discover -s . -p "test_*.py" -v
+          python -m coverage report -m --include="*Campus_user.py,*CampusUserLogic.py,*Event.py,*EventLogic.py" --fail-under=80
 
       - name: Run Ruff lint checks
         run: python -m ruff check .
