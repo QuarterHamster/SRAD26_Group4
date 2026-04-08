@@ -15,7 +15,7 @@ class Campus_user(User):
         :return: True if the event was added, False otherwise
         """
         favorite_event_name = str(event_name).strip()
-        if event_name == "":
+        if favorite_event_name == "":
             return False
 
         if favorite_event_name not in self.favorites:
@@ -31,7 +31,7 @@ class Campus_user(User):
         :return: True if the event was removed, False otherwise
         """
         favorite_event_name = str(event_name).strip()
-        if event_name == "":
+        if favorite_event_name == "":
             return False
 
         if favorite_event_name in self.favorites:

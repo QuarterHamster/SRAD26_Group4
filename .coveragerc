@@ -9,8 +9,10 @@ omit =
 
 [report]
 include =
-    Project/Models/Event.py
-    Project/LogicLayer/EventLogic.py
-fail_under = 50
+    *Event.py
+    *Campus_user.py
+    *EventLogic.py
+    *CampusUserLogic.py
+fail_under = 80
 show_missing = True
 skip_covered = True
