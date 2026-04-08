@@ -9,6 +9,11 @@ sys.path.append(str(Path(__file__).resolve().parents[1] / "Project"))
 from LogicLayer.EventLogic import EventLogic
 from Models.Event import Event
 
+from LogicLayer.CampusUserLogic import CampusUserLogic
+from Models.Campus_user import Campus_user
+from Models.Enums import Branch_type, Event_status, School_type
+
+
 
 def make_event(
     event_name="Test Event",
@@ -115,6 +120,47 @@ class EventLogicTests(unittest.TestCase):
 
         self.assertEqual(1, len(logic.events))
         self.assertEqual(created.uuid, logic.events[0].uuid)
+
+class FavoritesTests(unittest.TestCase):
+    def test_favorite_event(self):
+        campus_user = Campus_user(1, "Anna Jonsdottir", "anna1@campus.is", "active", School_type.STUDENT)
+        campus_logic = CampusUserLogic()
+        event = make_event()
+        campus_logic.favorite_event(campus_user, event.event_name)
+        self.assertEqual(1, len(campus_user.favorites))
+        self.assertEqual(event.event_name, campus_user.favorites[0])
+
+    def test_remove_favorite_event(self):
+        campus_user = Campus_user(1, "Anna Jonsdottir", "anna1@campus.is", "active", School_type.STUDENT)
+        campus_logic = CampusUserLogic()
+        event = make_event()
+        campus_logic.favorite_event(campus_user, event.event_name)
+        self.assertEqual(1, len(campus_user.favorites))
+        self.assertEqual(event.event_name, campus_user.favorites[0])
+        campus_logic.unfavorite_event(campus_user, event.event_name)
+        self.assertEqual(0, len(campus_user.favorites))
+
+    def test_view_favorite_events(self):
+        campus_user = Campus_user(1, "Anna Jonsdottir", "anna1@campus.is", "active", School_type.STUDENT)
+        campus_logic = CampusUserLogic()
+        event = Event(
+        1,
+        "Campus Coding Night",
+        "Students meet to work on coding projects together.",
+        ["coding", "tech", "collaboration"],
+        "REYKJAVIK_BRANCH",
+        datetime(2026, 3, 10, 18, 0),
+        "Room E301",
+        False,
+        Event_status.ACTIVE,
+        "1",
+    )
+        favorite_list = campus_logic.view_favorite_events(campus_user)
+        self.assertEqual(0, len(favorite_list))
+        campus_logic.favorite_event(campus_user, event.event_name)
+        favorite_list = campus_logic.view_favorite_events(campus_user)
+        self.assertEqual(1, len(favorite_list))
+        self.assertEqual(event.event_name, favorite_list[0])
 
 
 if __name__ == "__main__":
