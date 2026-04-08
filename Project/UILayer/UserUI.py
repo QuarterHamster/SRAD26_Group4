@@ -287,6 +287,36 @@ class UserUI:
         else:
             print(f"You are already attending {chosen_event.event_name}.")
 
+    def report_event(self, visible_events):
+        available_events = [
+            event for event in visible_events
+        ]
+
+        if len(available_events) == 0:
+            print("There are no events right now.")
+            return
+
+        print("Choose an event to report:")
+        for index, event in enumerate(events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
+
+        valid_options = [str(i) for i in range(1, len(events) + 1)] + ["b"]
+        selection = self._utilityUI.user_input(valid_options)
+        if selection == "b":
+            return
+        
+        report = input("describe your report:\n")
+        
+        chosen_event = events[int(selection) - 1]
+        reported = LogicLayerAPI.event_logic.report_event(
+            chosen_event,
+            report,
+            self._get_current_actor_name()
+        )
+        if reported:
+            print(f"You have reported {chosen_event.event_name}.")
+
     def _favorite_event_flow(self, visible_events: list) -> None:
         joinable_events = [
             event for event in visible_events if self._is_joinable_event(event)
@@ -342,15 +372,17 @@ class UserUI:
             self._utilityUI.show_box(
                 "",
                 "1. Join Event",
-                "2. Favorite Event",
+                "2. Report Event",
                 "b. Go back to home screen",
                 "",
             )
-            response = self._utilityUI.user_input(["1", "2","b",])
+            response = self._utilityUI.user_input(["1", "2", "b"])
             if response == "1":
                 self._join_event_flow(visible_events)
             elif response == "2":
-                self._favorite_event_flow(visible_events)
+                self.report_event(visible_events)
+        if self.ROLE_TITLE == "Admin":
+            self.see_reports()
         else:
             self._utilityUI.pause()
             return self.HOME_SCREEN
@@ -495,6 +527,29 @@ class UserUI:
         print(event_list)
         input("Continue")
         return ScreenOptions.USER_HOME
+
+    def see_reports(self):
+        print("\nSee reports for event: ")
+        for index, event in enumerate(events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
+
+        valid_options = [str(i) for i in range(1, len(events) + 1)] + ["b"]
+        selection = int(self._utilityUI.user_input(valid_options))
+        if selection == "b":
+            return
+        
+        for even in events:
+            if even.uuid == selection:
+                picked_event = even
+                if picked_event.reports:
+                    for report in picked_event.reports:
+                        print(f"report written by {report[1]}, description: '{report[0]}'")
+                    return
+                else:
+                    print("no reports"); return
+        print("no reports")
+        return
 
     def see_favorite_events(self):
         event_list: list[str] = LogicLayerAPI.view_favorite_events(self._get_current_actor())
