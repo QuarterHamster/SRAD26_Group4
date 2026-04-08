@@ -52,6 +52,7 @@ class Event:
         self.is_private = is_private
         self.status = status
         self.creator = creator
+        self.reports = []
         self.attendees = []
         self.reports = []
         self.invitees = []
@@ -76,6 +77,14 @@ class Event:
             return True
 
         return False
+    
+    def add_report(self, desc, reportee_name):
+        reportee_name = str(reportee_name).strip()
+        if reportee_name == "":
+            return False
+        
+        self.reports.append((desc, reportee_name))
+        return True
 
     def add_report(self, report_reason, reportee_name):
         report_reason = str(report_reason).strip()

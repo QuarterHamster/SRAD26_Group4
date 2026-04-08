@@ -29,6 +29,7 @@ class ScreenOptions(StrEnum):
     USER_CREATE_EVENT = "UserCreateEvent"
     USER_VIEW_ATTENDEES = "UserViewAttendees"
     USER_FILTER_EVENTS = "UserFilterEvents"
+    USER_REPORT_EVENT = "UserReportEvent"     ##
 
     SPONSOR_HOME = "SponsorHomeScreen"
     SPONSOR_SEE_EVENTS = "SponsorSeeEvents"
