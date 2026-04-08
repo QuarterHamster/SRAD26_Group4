@@ -96,11 +96,8 @@ class EventLogic:
     def join_event(self, event, attendee_name):
         return event.add_attendee(attendee_name)
 
-<<<<<<< HEAD
     def report_event(self, event, report, reportee_name):
         return event.add_report(report, reportee_name)
-=======
->>>>>>> 669b5324dfd86c65b3a087e4ff2dc5863fa61918
 
 # EventLogic = EventLogic()
 # test_time = datetime.datetime
