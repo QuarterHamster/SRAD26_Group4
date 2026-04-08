@@ -290,7 +290,7 @@ class UserUI:
         ]
 
         if len(available_events) == 0:
-            print("There are no joinable events right now.")
+            print("There are no events right now.")
             return
 
         print("Choose an event to report:")
@@ -338,6 +338,8 @@ class UserUI:
                 self._join_event_flow(visible_events)
             elif response == "2":
                 self.report_event(visible_events)
+        if self.ROLE_TITLE == "Admin":
+            self.see_reports()
         else:
             self._utilityUI.pause()
             return self.HOME_SCREEN
@@ -482,3 +484,26 @@ class UserUI:
         print(event_list)
         input("Continue")
         return ScreenOptions.USER_HOME
+
+    def see_reports(self):
+        print("\nSee reports for event: ")
+        for index, event in enumerate(events, start=1):
+            print(f"{index}. {event.event_name}")
+        print("b. Back")
+
+        valid_options = [str(i) for i in range(1, len(events) + 1)] + ["b"]
+        selection = int(self._utilityUI.user_input(valid_options))
+        if selection == "b":
+            return
+        
+        for even in events:
+            if even.uuid == selection:
+                picked_event = even
+                if picked_event.reports:
+                    for report in picked_event.reports:
+                        print(f"report written by {report[1]}, description: '{report[0]}'")
+                    return
+                else:
+                    print("no reports"); return
+        print("no reports")
+        return
