@@ -38,5 +38,6 @@ class ScreenOptions(StrEnum):
     SPONSOR_FILTER_EVENTS = "SponsorFilterEvents"
 
     OLD_EVENTS_SCREEN = "OldEvents"
+    FAVORITE_EVENTS = "FavoriteEvents"
 
     QUIT = "Quit"
